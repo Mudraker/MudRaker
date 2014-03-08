@@ -39,7 +39,7 @@ public class Command implements ICommand {
 	@SideOnly(Side.CLIENT)
 	private Command() {
 		ClientCommandHandler.instance.registerCommand(this);
-	}; 
+	} 
 	
 	/** Array of log level names for tab completion. */
 	static String[] logLevels = {"off", "severe", "warning", "info", "config", "fine", "finer", "finest", "all"};

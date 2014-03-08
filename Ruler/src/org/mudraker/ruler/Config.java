@@ -26,7 +26,7 @@ public class Config extends ConfigManager {
 	public static Config getInstance() { return instance; } // Return singleton for access
 	private Config() { // Singleton: Prevent additional instantiation
 		super(ModInfo.ID);
-	}; 
+	} 
 
 	/** Configuration category name for UI related fields */
 	//private static final String UI = "Ruler User Interface";
@@ -73,6 +73,7 @@ public class Config extends ConfigManager {
 	 * configuration file to reflect these defaults if necessary.
 	 * @param fileName for the configuration file
 	 */
+	@Override
 	public void loadConfig(File fileName) {
 		Log.info("*** " + ModInfo.NAME + " Version: " + ModInfo.VERSION + " ***");
 		super.loadConfig(fileName, null);
@@ -84,6 +85,7 @@ public class Config extends ConfigManager {
 	 * configuration has previously been loaded.
 	 * @throws IllegalStateException if configuration has not been previously loaded
 	 */
+	@Override
 	public void reloadConfig() {
 		super.reloadConfig();
 		convertConfig();
