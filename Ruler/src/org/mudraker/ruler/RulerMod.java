@@ -19,9 +19,8 @@ import cpw.mods.fml.common.registry.GameRegistry;
  * <p>Pattern: Forge proxyless mod.</p>
  * 
  * @author MudRaker
- * @version %I%, %G%
  */
-@Mod(modid = ModInfo.ID, name = ModInfo.NAME, version = ModInfo.VERSION)
+@Mod(modid = ModInfo.ID, name = ModInfo.LONG_NAME, version = ModInfo.VERSION)
 @NetworkMod(clientSideRequired = false, serverSideRequired = false)
 public class RulerMod {
 

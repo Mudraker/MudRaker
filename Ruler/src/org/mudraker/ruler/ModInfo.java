@@ -6,15 +6,14 @@ package org.mudraker.ruler;
  * <p>Pattern: Enforced Static Immutable</p>
  * 
  * @author MudRaker
- * @version %I%, %G%
  */
 public class ModInfo {
 	private ModInfo() {} // Static: Prevent instantiation
 
 	public static final String ID = "MudRaker.Ruler";
 	public static final String PKG = "org.mudraker.ruler";
-	public static final String TITLE = "Ruler";
-	public static final String NAME = TITLE + " by MudRaker";
+	public static final String SHORT_NAME = "Ruler";
+	public static final String LONG_NAME = SHORT_NAME + " by MudRaker";
 	public static final String VERSION = "0.0.0";
 
 	// DO NOT PUT A LEADING SLASH ON THE PATH!!!

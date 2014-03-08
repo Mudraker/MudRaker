@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.Property;
 
-import org.mudraker.ConfigManager;
+import org.mudraker.ConfigBase;
 import org.mudraker.Log;
 
 /**
@@ -18,14 +18,13 @@ import org.mudraker.Log;
  * 
  * @extends ConfigManager
  * @author MudRaker
- * @version %I%, %G%
  */
-public class Config extends ConfigManager {
+public class Config extends ConfigBase {
 	// Singleton instance enforcement
 	private static final Config instance = new Config(); // Singleton instance
 	public static Config getInstance() { return instance; } // Return singleton for access
 	private Config() { // Singleton: Prevent additional instantiation
-		super(ModInfo.ID);
+		super(ModInfo.ID, "ruler", true);
 	} 
 
 	/** Configuration category name for UI related fields */
@@ -36,7 +35,6 @@ public class Config extends ConfigManager {
 	// ****************************************************************
 	// General Configuration
 	// ****************************************************************
-	
 	/** 
 	 * Overrides the default logging level if not empty. 
 	 * See {@link check_logLevelOverride} 
@@ -75,7 +73,7 @@ public class Config extends ConfigManager {
 	 */
 	@Override
 	public void loadConfig(File fileName) {
-		Log.info("*** " + ModInfo.NAME + " Version: " + ModInfo.VERSION + " ***");
+		Log.info("*** " + ModInfo.LONG_NAME + " Version: " + ModInfo.VERSION + " ***");
 		super.loadConfig(fileName, null);
 		convertConfig();
 	}
@@ -90,43 +88,6 @@ public class Config extends ConfigManager {
 		super.reloadConfig();
 		convertConfig();
 	}
-
-	/**
-	 * Dump details of the mod global configuration as information messages to
-	 * the log. Includes a mod header with key {@link ModInfo} details.
-	 */
-	public void dumpConfig() {
-		dumpConfig(ModInfo.NAME);
-	}
-	
-	/**
-	 * Returns a list of valid configuration fields that can be set.
-	 * @return a string array of the valid field names.
-	 */
-	public String[] getCfgFields() {
-		return getCfgFields ("ruler", true);
-	}
-
-	/**
-	 * Retrieve a description of the data type of a configuration field.
-	 * May be Boolean, String, Int, Float, Double or Enum.
-	 * @param searchName
-	 * @return a string representing the class recorded by the {@link Cfg} annotation
-	 * or null if the configuration field is not found.
-	 */
-	public String getCfgFieldType(String searchName) {
-		return getCfgFieldType(searchName, "ruler");
-	}
-
-	/**
-	 * Retrieve valid values for a configuration field.
-	 * @param searchName
-	 * @return an array of valid values if known. For numeric fields with a min/max
-	 * range, a single value is returned identifying the min ... max values 
-	 */
-	public String[] getCfgFieldValues(String searchName) {
-		return getCfgFieldValues(searchName, "ruler");
-	}
 	
 	/**
 	 * Set a configuration field with the provided value
@@ -135,8 +96,9 @@ public class Config extends ConfigManager {
 	 * @return true if the field was updated successfully, false if the value is not valid.
 	 * @throws NoSuchFieldException
 	 */
+	@Override
 	public boolean setCfgField(String searchName, String value) throws NoSuchFieldException {
-		boolean b = setCfgField(searchName, "ruler", value);
+		boolean b = super.setCfgField(searchName, value);
 		convertConfig();
 		return b;
 	}
@@ -147,10 +109,10 @@ public class Config extends ConfigManager {
 	
 	/**
 	 * Check the value of {@link logLevelOverride} and override Logging level if set.
-	 * <p>See {@link ConfigManager.doCheck}</p>
+	 * <p>See {@link ConfigBase.doCheck}</p>
 	 * @param field is the reflected field reference
 	 * @param p is the Forge property information
-	 * @return false to indicate it has already stored the field value if necessary.
+	 * @return true if field is okay or false if invalid.
 	 */
 	@SuppressWarnings("unused")
 	private boolean check_logLevelOverride (Field field, Property p) {
@@ -161,12 +123,14 @@ public class Config extends ConfigManager {
 				newLevel = Level.parse(logLevelOverride.trim().toUpperCase());
 				Log.setLevel(newLevel);
 				Log.fine("Config: LogLevel override to "+logLevelOverride);
+				return true;
 	        } catch(IllegalArgumentException e) {
 				Log.fine("Config: LogLevel override "+logLevelOverride+" invalid - rewrite config as empty");
 	        	p.set(logLevelOverride = "");
+	        	return false;
 	        }
 		}
-		return false; // don't bother to store
+		return true;
 	}
 	
 	// ****************************************************************

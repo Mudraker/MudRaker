@@ -1,19 +1,23 @@
-# Ruler misc strings
+# Ruler general strings
 mudraker.ruler.phrase.values=Values
 
 # Ruler command usage
-mudraker.ruler.command.mrrl.usage=mrrl [reload | log <level> | console [off] | [get | ? ] <field> | set <field> <value>]
-mudraker.ruler.command.log.usage=mrrl log [off | severe | warning | info | config | fine | finer | finest | all]
-mudraker.ruler.command.set.usage=mrrl set <field> <value>
-mudraker.ruler.command.set.nofield.usage=mrrl set - invalid field name (%s)
-mudraker.ruler.command.set.novalue.usage=mrrl set - field (%s) requires a %s value
-mudraker.ruler.command.set.value.usage=mrrl set - invalid value (%s) for field (%s): requires %s
+mudraker.ruler.cmd.mrrl.usage=mrrl [log <level> | console [off] | reload | set <field> <value> | [get | ?] <field>]
 
-# Ruler messages
-mudraker.ruler.message.reload=Ruler configuration reloaded!
-mudraker.ruler.message.console=Ruler console logging %s
-mudraker.ruler.message.log=Ruler session logLevel(%s)
-mudraker.ruler.message.set=Ruler field %s set to %s
+# Standard MAIN command support
+mudraker.ruler.cmd.main.player.usage=Command sender must be a player.
+mudraker.ruler.msg.main.console=%s console logging %s
+mudraker.ruler.cmd.main.log.usage=%s log [off | severe | warning | info | config | fine | finer | finest | all]
+mudraker.ruler.msg.main.log=%s session logLevel(%s)
+mudraker.ruler.msg.main.reload=%s configuration reloaded!
+mudraker.ruler.msg.main.get=%s field %s value %s
+mudraker.ruler.msg.main.get.empty=%s field %s is empty or inaccessible
+mudraker.ruler.cmd.main.get.usage=%s [get | ?] <field>
+mudraker.ruler.cmd.main.get.nofield.usage=%s get: Invalid field name (%s)
+mudraker.ruler.msg.main.set=%s field %s set to %s
+mudraker.ruler.cmd.main.set.usage=%s set <field> <value>
+mudraker.ruler.cmd.main.set.nofield.usage=%s set: Invalid field name (%s)
+mudraker.ruler.cmd.main.set.fieldvalue.usage=%s set: Invalid value (%s) for field (%s): requires %s
 
 # Key binding names
 #mudraker.ruler.key.rotvc.name=Rotate Vertical Clockwise
