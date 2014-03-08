@@ -1,0 +1,17 @@
+[
+{
+  "modid": "Ruler.BlockPlacer",
+  "name": "Ruler by MudRaker",
+  "description": "A utility mod for measuring distances.",
+  "version": "0.0.0",
+  "mcversion": "1.6.4",
+  "logoFile": "",
+  "url": "",
+  "updateUrl": "",
+  "authors": ["MudRaker"],
+  "credits": "Toshba for beta-testing",
+  "parent": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

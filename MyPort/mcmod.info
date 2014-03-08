@@ -1,0 +1,17 @@
+[
+{
+  "modid": "MudRaker.MyPort",
+  "name": "MyPort by MudRaker",
+  "description": "A utility hack that sets the LAN port to a configured value instead of a random port.",
+  "version": "0.2.0",
+  "mcversion": "1.6.4",
+  "logoFile": "",
+  "url": "",
+  "updateUrl": "",
+  "authors": ["MudRaker"],
+  "credits": "Toshba for beta-testing",
+  "parent": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
