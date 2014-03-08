@@ -32,7 +32,7 @@ import net.minecraftforge.common.Property;
  * @version %I%, %G%
  */
 public abstract class ConfigManager {
-	protected ConfigManager() { }; // Abstract: Prevent instantiation except by subclass
+	protected ConfigManager() { } // Abstract: Prevent instantiation except by subclass
 
 	// ****************************************************************
 	// Protected Data 

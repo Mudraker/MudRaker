@@ -17,7 +17,7 @@ import cpw.mods.fml.common.FMLLog;
  * @version %I%, %G%
  */
 public class Log {
-	private Log() {}; // Static: Prevent instantiation
+	private Log() {} // Static: Prevent instantiation
 	
 	/** DEBUG Control - set true to force INFO as the minimum log type */
 	private static boolean minInfo = false;

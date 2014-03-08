@@ -30,7 +30,7 @@ public class Overlay extends Gui {
 	// Singleton instance enforcement
 	private final static Overlay instance = new Overlay(); // Singleton instance
 	public static Overlay getInstance() { return instance; } // Return singleton for access
-	private Overlay() {}; // Singleton: Prevent additional instantiation
+	private Overlay() {} // Singleton: Prevent additional instantiation
 
 	/** Location of the BlockPlacer icon */
 	private static final ResourceLocation ICON = new ResourceLocation(

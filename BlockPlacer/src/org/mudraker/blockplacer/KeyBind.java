@@ -35,7 +35,7 @@ public class KeyBind extends KeyHandler {
 	public static KeyBind getInstance() { return instance; } // Return singleton for access
 	
 	/** Singleton constructor: Instantiate without key bindings and fix later */
-	private KeyBind() { super(new KeyBinding[] {}, new boolean [] {}); }; 
+	private KeyBind() { super(new KeyBinding[] {}, new boolean [] {}); } 
 	
 	/** Only process client loop ticks */
 	private static final EnumSet tickTypes = EnumSet.of(TickType.CLIENT);
@@ -148,7 +148,7 @@ public class KeyBind extends KeyHandler {
 
 	/** Null method to override the abstract one */
 	@Override
-	public void keyDown(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd, boolean isRepeat) {};
+	public void keyDown(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd, boolean isRepeat) {}
 	
 	/**
 	 * Identifies control function of the released key from the key map

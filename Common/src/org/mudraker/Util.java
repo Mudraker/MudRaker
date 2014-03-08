@@ -13,7 +13,7 @@ import java.util.List;
  * @version %I%, %G%
  */
 public class Util {
-	private Util() {}; // Static: Prevent instantiation
+	private Util() {} // Static: Prevent instantiation
 	
 	/** System line separator */
 	private static String NEW_LINE = System.getProperty("line.separator");

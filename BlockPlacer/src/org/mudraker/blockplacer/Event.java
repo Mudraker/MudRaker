@@ -36,7 +36,7 @@ public class Event {
 	// Singleton instance enforcement
 	private final static Event instance = new Event(); // Singleton instance
 	public static Event getInstance() { return instance; } // Return singleton for access
-	private Event() {}; // Singleton: Prevent additional instantiation
+	private Event() {} // Singleton: Prevent additional instantiation
 	
 	private World theWorld; // allows base minecraft functions to be used unchanged.
 	private Coordinate drawPosition = new Coordinate(0,0,0); // reusable structure object

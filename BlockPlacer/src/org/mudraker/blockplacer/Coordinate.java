@@ -48,6 +48,7 @@ public class Coordinate implements Cloneable {
 	 * @return String representation of the coordinate
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		return "(" + this.x + "," + this.y + "," + this.z + ")";
 	}

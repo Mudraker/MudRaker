@@ -12,7 +12,7 @@ import net.minecraft.client.resources.I18n;
  * @version %I%, %G%
  */
 public class Lang extends I18n {
-	private Lang() {}; // Static: Prevent instantiation
+	private Lang() {} // Static: Prevent instantiation
 	
 	/**
 	 * Standardise a string into a language file key

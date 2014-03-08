@@ -26,7 +26,7 @@ public class Config extends ConfigManager {
 	// Singleton instance enforcement
 	private static final Config instance = new Config(); // Singleton instance
 	public static Config getInstance() { return instance; } // Return singleton for access
-	private Config() {}; // Singleton: Prevent additional instantiation
+	private Config() {} // Singleton: Prevent additional instantiation
 
 	/** Configuration category name for UI related fields */
 	private static final String UI = "BlockPlacer User Interface";

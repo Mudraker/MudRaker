@@ -30,7 +30,7 @@ import cpw.mods.fml.relauncher.SideOnly;
  */
 @SideOnly(Side.CLIENT)
 public class BlockPlacer {
-	private BlockPlacer() {}; // Static: Prevent instantiation
+	private BlockPlacer() {} // Static: Prevent instantiation
 
 	// **************************************
 	// internal state variables

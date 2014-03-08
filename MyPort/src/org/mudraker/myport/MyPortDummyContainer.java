@@ -94,7 +94,7 @@ public class MyPortDummyContainer extends DummyModContainer {
 		try {
 			// Load any stored configuration from its file
 			cfg.load();
-			portNumber = cfg.get(cfg.CATEGORY_GENERAL, "PortNumber", portNumber, 
+			portNumber = cfg.get(Configuration.CATEGORY_GENERAL, "PortNumber", portNumber, 
 							"Fixed port number for LAN port").getInt();			
 		} catch (Exception e) {
 			logger.log(Level.WARNING,"Configuration load failed");

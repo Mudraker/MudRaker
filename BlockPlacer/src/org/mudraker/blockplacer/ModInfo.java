@@ -9,7 +9,7 @@ package org.mudraker.blockplacer;
  * @version %I%, %G%
  */
 public class ModInfo {
-	private ModInfo() {}; // Static: Prevent instantiation
+	private ModInfo() {} // Static: Prevent instantiation
 
 	public static final String ID = "MudRaker.BlockPlacer";
 	public static final String PKG = "org.mudraker.blockplacer";

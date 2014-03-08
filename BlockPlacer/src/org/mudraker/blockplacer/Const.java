@@ -10,7 +10,7 @@ package org.mudraker.blockplacer;
  * @version %I%, %G%
  */
 public class Const {
-	private Const() {};	// Static: Prevent instantiation
+	private Const() {}	// Static: Prevent instantiation
 
 	//******************************************************
 	// Block sides and relative directions
