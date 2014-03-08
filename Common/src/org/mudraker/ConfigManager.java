@@ -7,11 +7,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.Property;
 
 /** 
- * MudRaker Configuration manager
+ * MudRaker Mod Configuration manager
  * <p>Provides an annotation and reflection based configuration file loader.</p>
  * 
  * <p>Pattern: Abstract Singleton Mutable</p>
@@ -32,13 +34,27 @@ import net.minecraftforge.common.Property;
  * @version %I%, %G%
  */
 public abstract class ConfigManager {
-	protected ConfigManager() { } // Abstract: Prevent instantiation except by subclass
+
+	
+	// ****************************************************************
+	// Constructors 
+	// ****************************************************************
+	/**
+	 * Protected Constructor to set modPrefix
+	 * @param modPrefix is the module prefix for language strings
+	 */
+	protected ConfigManager(String modPrefix) {
+		this.modPrefix = modPrefix;
+	} 
 
 	// ****************************************************************
 	// Protected Data 
 	// ****************************************************************
 	/** Configuration file details */
 	protected File file;
+	
+	/** Mod specific prefix for language strings */
+	protected String modPrefix;
 	
 	// ****************************************************************
 	// ANNOTATIONS
@@ -75,6 +91,7 @@ public abstract class ConfigManager {
 		String cat () default Configuration.CATEGORY_GENERAL;
 		double min () default 0;
 		double max () default -1;
+		boolean loadOnly () default false;
 		boolean check () default false;
 	}
 	
@@ -99,7 +116,7 @@ public abstract class ConfigManager {
 			}
 		}
 		Log.info("Configuration loading...");
-		doLoad(cfg);
+		doLoad(cfg, true);
 	}
 	
 	/**
@@ -124,7 +141,7 @@ public abstract class ConfigManager {
 		}
 		Configuration cfg = new Configuration(file);
 		Log.info("Configuration RELOADING...");
-		doLoad(cfg);
+		doLoad(cfg, false);
 	}
 	
 	/** 
@@ -147,12 +164,13 @@ public abstract class ConfigManager {
 	 * @return a string array of the valid field names.
 	 */
 	protected String[] getCfgFields(String optPrefix, boolean stripPrefix) {
-        ArrayList<String> result = new ArrayList<String>();
+		Cfg annotation;
+		ArrayList<String> result = new ArrayList<String>();
 		String name;
 
 		Field[] fields = this.getClass().getDeclaredFields();
 		for (Field field : fields) {
-			if (field.getAnnotation(Cfg.class) != null) {
+			if ((annotation = field.getAnnotation(Cfg.class)) != null && !annotation.loadOnly()) {
 				name = field.getName();
 				if (Util.stringHasPrefix(name, optPrefix)) {
 					result.add(name.substring(optPrefix.length()));
@@ -179,7 +197,8 @@ public abstract class ConfigManager {
 		Field field;
 		if ((field = findField (searchName, optPrefix)) != null) {
 			Cfg annotation = field.getAnnotation(Cfg.class);
-			if (annotation.value() == boolean.class)		return "boolean";
+			if (annotation.loadOnly())						return null;
+			else if (annotation.value() == boolean.class)	return "boolean";
 			else if (annotation.value() == String.class) 	return "string";
 			else if (annotation.value() == int.class)		return "int";
 			else if (annotation.value() == float.class)		return "float";
@@ -195,13 +214,15 @@ public abstract class ConfigManager {
 	 * @param searchName
 	 * @param optPrefix
 	 * @return an array of valid values if known. For numeric fields with a min/max
-	 * range, a single value is returned identifying the min ... max values 
+	 * range, a single value is returned identifying the min ... max values.
 	 */
 	protected String[] getCfgFieldValues(String searchName, String optPrefix) {
 		Field field;
 		if ((field = findField (searchName, optPrefix)) != null) {
 			Cfg annotation = field.getAnnotation(Cfg.class);
-			if (annotation.value() == boolean.class)
+			if (annotation.loadOnly())
+				return null;
+			else if (annotation.value() == boolean.class)
 				return new String[] {"true", "false"};
 			else if (annotation.value() == String.class)
 				return null;
@@ -221,41 +242,41 @@ public abstract class ConfigManager {
 	}
 	
 	/**
-	 * Get a configuration field by name and return the value as a string.
-	 * Allow for an optional prefix at the start of the actual field name.
-	 * @param searchName is the configuration field to set
-	 * @param optPrefix is an optional prefix for the actual configuration field
-	 * @return the value of the field as a string
-	 * @throws NoSuchFieldException if the field cannot be found (with or without prefix)
-	 */
-	protected String getCfgField(String searchName, String optPrefix) throws NoSuchFieldException {
-		Cfg annotation;
 
-		// locate the field, with or without prefix
-		Field field = findField (searchName, optPrefix);
-		
-		// locate field & check for annotation & process if valid
-		if (field != null && (annotation = field.getAnnotation(Cfg.class)) != null) {
-			String value = null;
-			field.setAccessible(true);
-			try {
-				if (annotation.value() == boolean.class)		value = ""+field.getBoolean(this);
-				else if (annotation.value() == String.class) 	value = (String) field.get(this);
-				else if (annotation.value() == int.class) 		value = ""+field.getInt(this);
-				else if (annotation.value() == float.class) 	value = ""+field.getFloat(this);
-				else if (annotation.value() == double.class) 	value = ""+field.getDouble(this);
-				else if (annotation.value().isEnum()) {
-					value = (field.get(this) != null) ? field.get(this).toString() : "";
-				}
-			} catch (Exception e) {
-				// HUSH
-			}
-			return value;
-		}
-		throw new NoSuchFieldException ();
-	}
 
-	/**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	 * Set a configuration field by name using the provided string value.
 	 * Allow for an optional prefix at the start of the actual field name.
 	 * @param searchName is the configuration field to set
@@ -265,15 +286,16 @@ public abstract class ConfigManager {
 	 * @throws NoSuchFieldException if the field cannot be found (with or without prefix)
 	 */
 	protected boolean setCfgField(String searchName, String optPrefix, String value) throws NoSuchFieldException {
+		Field field = null;
 		Cfg annotation;
 		String name;
 		boolean ok = false;
 
 		// locate the field, with or without prefix
-		Field field = findField (searchName, optPrefix);
+		field = findField (searchName, optPrefix);
 		
 		// locate field & check for annotation & process if valid
-		if (field != null && (annotation = field.getAnnotation(Cfg.class)) != null) {
+		if (field != null && (annotation = field.getAnnotation(Cfg.class)) != null && !annotation.loadOnly()) {
 			field.setAccessible(true);
 			name = field.getName();
 			Property p = new Property (name, value, Property.Type.STRING);
@@ -313,7 +335,7 @@ public abstract class ConfigManager {
 	 * @param category is the category name
 	 */
 	private void registerCategory(Configuration cfg, String category) {
-		cfg.addCustomCategoryComment(category, Lang.getCategoryComment(Lang.getStandardKey(category)));
+		cfg.addCustomCategoryComment(category, Lang.getCategoryComment(modPrefix, Lang.getStandardKey(category)));
 	}
 	
 	/**
@@ -321,12 +343,13 @@ public abstract class ConfigManager {
 	 * Provides default values for any missing configuration items and will rewrite the
 	 * configuration file to reflect these defaults if necessary.
 	 * @param cfg is the Forge configuration to be processed. 
+	 * @param firstTime indicates if this is the first time config has been loaded. 
 	 */
-	private void doLoad(Configuration cfg) {
+	private void doLoad(Configuration cfg, boolean firstTime) {
 		try {
 			// Load any stored configuration from its file
 			cfg.load();
-			processCfg(cfg);
+			processCfg(cfg, firstTime);
 		} catch (Exception e) {
 			Log.warn("Configuration load failed");
 			e.printStackTrace();
@@ -343,8 +366,9 @@ public abstract class ConfigManager {
 	 * Process configuration against the declared fields in the config class
 	 * Annotations ({@link Cfg}) are required on the fields to be processed.
 	 * @param cfg is the Forge configuration information to process.
+	 * @param firstTime indicates if this is the first time config has been loaded. 
 	 */
-	private void processCfg(Configuration cfg) {
+	private void processCfg(Configuration cfg, boolean firstTime) {
 		Cfg annotation;
 		Property p;
 		String name, bounds;
@@ -355,38 +379,49 @@ public abstract class ConfigManager {
 				if ((annotation = field.getAnnotation(Cfg.class)) != null) {
 					name = field.getName();
 					field.setAccessible(true);
+					// FIRST TIME ONLY
+					if (annotation.loadOnly() && !firstTime) {
+						Log.fine("Config: Skip load only field " + name);
+					// ITEM
+					} else if (annotation.value() == Item.class) {
+						p = cfg.getItem (name, field.getInt(this), Lang.getFieldComment(modPrefix, name));
+						if (!setIntFromProperty(name, annotation, field, p)) p.set(field.getInt(this));
+					// BLOCK
+					} else if (annotation.value() == Block.class) {
+						p = cfg.getBlock (name, field.getInt(this), Lang.getFieldComment(modPrefix, name));
+						if (!setIntFromProperty(name, annotation, field, p)) p.set(field.getInt(this));
 					// BOOLEAN
-					if (annotation.value() == boolean.class) {
-						p = cfg.get(annotation.cat(), name, field.getBoolean(this), Lang.getFieldComment(name));
+					} else if (annotation.value() == boolean.class) {
+						p = cfg.get(annotation.cat(), name, field.getBoolean(this), Lang.getFieldComment(modPrefix, name));
 						if (!setBooleanFromProperty(name, annotation, field, p)) p.set(field.getBoolean(this));
 					// STRING
 					} else if (annotation.value() == String.class) {
-						p = cfg.get(annotation.cat(), name, (String) field.get(this), Lang.getFieldComment(name));
+						p = cfg.get(annotation.cat(), name, (String) field.get(this), Lang.getFieldComment(modPrefix, name));
 						if (!setStringFromProperty(name, annotation, field, p)) p.set((String) field.get(this));
 					// INT
 					} else if (annotation.value() == int.class) {
 						bounds = (annotation.min() > annotation.max()) ? "" : " ("
 								+ (int) annotation.min() + "-" + (int) annotation.max() + ")";
-						p = cfg.get(annotation.cat(), name, field.getInt(this), Lang.getFieldComment(name) + bounds);
+						p = cfg.get(annotation.cat(), name, field.getInt(this), Lang.getFieldComment(modPrefix, name) + bounds);
 						if (!setIntFromProperty(name, annotation, field, p)) p.set(field.getInt(this));
 					// FLOAT
 					} else if (annotation.value() == float.class) {
 						bounds = (annotation.min() > annotation.max()) ? "" : " ("
 								+ (float) annotation.min() + "-" + (float) annotation.max() + ")";
-						p = cfg.get(annotation.cat(), name, field.getFloat(this), Lang.getFieldComment(name) + bounds);
+						p = cfg.get(annotation.cat(), name, field.getFloat(this), Lang.getFieldComment(modPrefix, name) + bounds);
 						if (!setFloatFromProperty(name, annotation, field, p)) p.set(field.getFloat(this));
 					// DOUBLE
 					} else if (annotation.value() == double.class) {
 						bounds = (annotation.min() > annotation.max()) ? "" : " ("
 								+ (double) annotation.min() + "-" + (double) annotation.max() + ")";
-						p = cfg.get(annotation.cat(), name, field.getDouble(this), Lang.getFieldComment(name) + bounds);
+						p = cfg.get(annotation.cat(), name, field.getDouble(this), Lang.getFieldComment(modPrefix, name) + bounds);
 						if (!setDoubleFromProperty(name, annotation, field, p)) p.set(field.getDouble(this));
 					// ENUM
 					} else if (annotation.value().isEnum()) {
 						String value = (field.get(this) != null) ? field.get(this).toString() : "";
 						bounds = Util.enumValueList(field.getType());
-						p = cfg.get(annotation.cat(), name, value, Lang.getFieldComment(name)
-								+ Configuration.NEW_LINE + Lang.getPhrase("values") + ": " + bounds);
+						p = cfg.get(annotation.cat(), name, value, Lang.getFieldComment(modPrefix, name)
+								+ Configuration.NEW_LINE + Lang.getPhrase(modPrefix, "values") + ": " + bounds);
 						if (!setEnumFromProperty(name, annotation, field, p) && p.hasChanged()) {
 							value = (field.get(this) != null) ? field.get(this).toString() : "";
 				        	Log.warn("Config: Invalid config value "+p.getString()+" for "+name+", rewrite with default "+value);
@@ -443,7 +478,9 @@ public abstract class ConfigManager {
 				if ((annotation = field.getAnnotation(Cfg.class)) != null) {
 					name = field.getName();
 					field.setAccessible(true);
-					if (annotation.value() == boolean.class) {
+					if (annotation.value() == Item.class) {
+						value = ""+field.getInt(this);
+					} else if (annotation.value() == boolean.class) {
 						value = ""+field.getBoolean(this);
 					} else if (annotation.value() == String.class) {
 						value = (String) field.get(this);
@@ -467,12 +504,13 @@ public abstract class ConfigManager {
 	
 	/**
 	 * Locates a named configuration field, allowing for an optional name prefix
-	 * The field must have the {@link Cfg} annotation to be considered.
+	 * The field must have the {@link Cfg} annotation that is not loadOnly.
 	 * @param searchName is the configuration field name to search for
 	 * @param optPrefix is the optional prefix that may be on the actual field name
 	 * @return the reflected field if found otherwise null
 	 */
 	private Field findField(String searchName, String optPrefix) {
+		Cfg annotation;
 		String name;
 		String searchWithPrefix = optPrefix+searchName;
 		// locate the field, with or without prefix
@@ -482,7 +520,8 @@ public abstract class ConfigManager {
 				name = field.getName();
 				if ((name.equalsIgnoreCase(searchName) 
 					|| name.equalsIgnoreCase(searchWithPrefix))
-					&& field.getAnnotation(Cfg.class) != null) {
+					&& (annotation = field.getAnnotation(Cfg.class)) != null 
+					&& !annotation.loadOnly()) {
 					return field;
 				}
 			}

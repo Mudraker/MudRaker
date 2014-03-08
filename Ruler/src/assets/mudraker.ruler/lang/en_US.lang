@@ -1,0 +1,26 @@
+# Ruler misc strings
+mudraker.ruler.phrase.values=Values
+
+# Ruler command usage
+mudraker.ruler.command.mrrl.usage=mrrl [reload | log <level> | console [off] | [get | ? ] <field> | set <field> <value>]
+mudraker.ruler.command.log.usage=mrrl log [off | severe | warning | info | config | fine | finer | finest | all]
+mudraker.ruler.command.set.usage=mrrl set <field> <value>
+mudraker.ruler.command.set.nofield.usage=mrrl set - invalid field name (%s)
+mudraker.ruler.command.set.novalue.usage=mrrl set - field (%s) requires a %s value
+mudraker.ruler.command.set.value.usage=mrrl set - invalid value (%s) for field (%s): requires %s
+
+# Ruler messages
+mudraker.ruler.message.reload=Ruler configuration reloaded!
+mudraker.ruler.message.console=Ruler console logging %s
+mudraker.ruler.message.log=Ruler session logLevel(%s)
+mudraker.ruler.message.set=Ruler field %s set to %s
+
+# Key binding names
+#mudraker.ruler.key.rotvc.name=Rotate Vertical Clockwise
+
+# Configuration file comments
+#mudraker.ruler.category.ruler_controls.comment=
+#mudraker.ruler.field.largeIcon.comment=
+mudraker.ruler.field.logLevelOverride.comment=Overrides the default mod logging level (OFF, ERROR, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL).\nThe default level can be set in config/logging.properties file e.g. MudRaker.Ruler.Level = INFO
+mudraker.ruler.field.rulerItemId.comment=Item id for the ruler item
+#end
