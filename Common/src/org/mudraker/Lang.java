@@ -9,7 +9,6 @@ import net.minecraft.client.resources.I18n;
  * <p>Pattern: Enforced Static Immutable</p>
  *  
  * @author MudRaker
- * @version %I%, %G%
  */
 public class Lang extends I18n {
 	private Lang() {} // Static: Prevent instantiation
@@ -78,10 +77,13 @@ public class Lang extends I18n {
 	 * Retrieve a command usage from the language file.
 	 * @param mod is the mod prefix
 	 * @param command is the command name
+	 * @param subCommand are the optional sub command name(s)
 	 * @return is the translated command usage.
 	 */
-	public static String getCommandUsage (String mod, String command) {
-		return I18n.getString(mod.toLowerCase()+".command."+command+".usage");
+	public static String getCommandUsage (String mod, String command, String subCommand) {
+		return I18n.getString(mod.toLowerCase()+".cmd."+command
+				+((subCommand != null && !subCommand.isEmpty())?"."+subCommand:"")
+				+".usage");
 	}
 	
 	/**
@@ -91,17 +93,17 @@ public class Lang extends I18n {
 	 * @return is the translated message text
 	 */
 	public static String getMsg (String mod, String msg) {
-		return I18n.getString(mod.toLowerCase()+".message."+msg);
+		return I18n.getString(mod.toLowerCase()+".msg."+msg);
 	}
 	
 	/**
 	 * Retrieve message text with parameters from the language file.
 	 * @param mod is the mod prefix
 	 * @param msg is the message id
-	 * @parma objects are the parameter objects
+	 * @param objects are the parameter objects
 	 * @return is the translated message text with parameters inserted
 	 */
 	public static String getMsgParams (String mod, String msg, Object ... objects) {
-		return I18n.getStringParams(mod.toLowerCase()+".message."+msg, objects);
+		return I18n.getStringParams(mod.toLowerCase()+".msg."+msg, objects);
 	}
 }

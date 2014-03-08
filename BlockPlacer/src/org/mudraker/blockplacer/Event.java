@@ -29,7 +29,6 @@ import cpw.mods.fml.relauncher.SideOnly;
  * <p>Pattern: Singleton Event Subscriber</p>
  * 
  * @author MudRaker
- * @version %I%, %G%
  */
 @SideOnly(Side.CLIENT)
 public class Event {

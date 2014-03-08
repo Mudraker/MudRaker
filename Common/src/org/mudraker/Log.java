@@ -14,7 +14,6 @@ import cpw.mods.fml.common.FMLLog;
  * <p>Pattern: Enforced Static Mutable</p> 
  * 
  * @author MudRaker
- * @version %I%, %G%
  */
 public class Log {
 	private Log() {} // Static: Prevent instantiation

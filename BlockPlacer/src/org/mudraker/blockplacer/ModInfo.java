@@ -6,15 +6,14 @@ package org.mudraker.blockplacer;
  * <p>Pattern: Enforced Static Immutable</p>
  * 
  * @author MudRaker
- * @version %I%, %G%
  */
 public class ModInfo {
 	private ModInfo() {} // Static: Prevent instantiation
 
 	public static final String ID = "MudRaker.BlockPlacer";
 	public static final String PKG = "org.mudraker.blockplacer";
-	public static final String TITLE = "Block Placer";
-	public static final String NAME = TITLE + " by MudRaker";
+	public static final String SHORT_NAME = "BlockPlacer";
+	public static final String LONG_NAME = "Block Placer by MudRaker";
 	public static final String VERSION = "0.9.0";
 
 	// DO NOT PUT A LEADING SLASH ON THE PATH!!!

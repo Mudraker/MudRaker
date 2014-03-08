@@ -26,7 +26,6 @@ import cpw.mods.fml.relauncher.SideOnly;
  * <p>Pattern: Static Mutable.</p>
  * 
  * @author MudRaker
- * @version %I%, %G%
  */
 @SideOnly(Side.CLIENT)
 public class BlockPlacer {
@@ -78,7 +77,7 @@ public class BlockPlacer {
 		if (!playerWelcomed) {
 			Minecraft mc = Minecraft.getMinecraft();
 			if (mc != null && mc.thePlayer != null) {
-				mc.thePlayer.addChatMessage(ModInfo.NAME + " Version: " + ModInfo.VERSION);
+				mc.thePlayer.addChatMessage(ModInfo.LONG_NAME + " Version: " + ModInfo.VERSION);
 				playerWelcomed = true;
 			}
 		}

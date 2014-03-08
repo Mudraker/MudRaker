@@ -13,7 +13,6 @@ import net.minecraft.util.MovingObjectPosition;
  * <p>Pattern: Non-pooled Reusable Structure</p>
  * 
  * @author MudRaker
- * @version %I%, %G%
  */
 public class Coordinate implements Cloneable {
 	/** X integer world coordinate */

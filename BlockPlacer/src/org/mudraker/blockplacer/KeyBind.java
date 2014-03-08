@@ -26,7 +26,6 @@ import cpw.mods.fml.relauncher.SideOnly;
  * <p>Pattern: Singleton Event handler</p>
  * 
  * @author MudRaker
- * @version %I%, %G%
  */
 @SideOnly(Side.CLIENT)
 public class KeyBind extends KeyHandler {
@@ -234,7 +233,7 @@ public class KeyBind extends KeyHandler {
 		
 		// Load in each key in turn
 		for (byte key : keys) {
-			name = Lang.getKeyName(keyNames[key]);
+			name = Lang.getKeyName(ModInfo.ID, keyNames[key]);
 			keyBindings[i] = new KeyBinding(name, keyCodes[key]);
 			repeatings[i] = false;
 			keyMap.put(name, key);

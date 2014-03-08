@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.Property;
 
-import org.mudraker.ConfigManager;
+import org.mudraker.ConfigBase;
 import org.mudraker.Lang;
 import org.mudraker.Log;
 import org.mudraker.Util;
@@ -20,13 +20,14 @@ import org.mudraker.Util;
  * 
  * @extends ConfigManager
  * @author MudRaker
- * @version %I%, %G%
  */
-public class Config extends ConfigManager {
+public class Config extends ConfigBase {
 	// Singleton instance enforcement
 	private static final Config instance = new Config(); // Singleton instance
 	public static Config getInstance() { return instance; } // Return singleton for access
-	private Config() {} // Singleton: Prevent additional instantiation
+	private Config() { // Singleton: Prevent additional instantiation
+		super(ModInfo.ID, "place", true);
+	}
 
 	/** Configuration category name for UI related fields */
 	private static final String UI = "BlockPlacer User Interface";
@@ -242,7 +243,7 @@ public class Config extends ConfigManager {
 	 */
 	@Override
 	public void loadConfig(File fileName) {
-		Log.info("*** " + ModInfo.NAME + " Version: " + ModInfo.VERSION + " ***");
+		Log.info("*** " + ModInfo.LONG_NAME + " Version: " + ModInfo.VERSION + " ***");
 		super.loadConfig(fileName, new String[] {UI, CTL});
 		convertConfig();
 	}
@@ -255,61 +256,14 @@ public class Config extends ConfigManager {
 	 */
 	@Override
 	public void reloadConfig() {
+		BlockPlacer.setPlaceEnabled(false);
 		super.reloadConfig();
 		convertConfig();
 		if (KeyBind.reInit(placeControlMode)) {
 			Minecraft mc = Minecraft.getMinecraft();
 			if (mc.thePlayer != null) 
-				mc.thePlayer.addChatMessage(Lang.getMsg("cmd.keybind"));
+				mc.thePlayer.addChatMessage(Lang.getMsgParams(ModInfo.ID, "reload.keybind", ModInfo.SHORT_NAME));
 		}
-	}
-
-	/**
-	 * Dump details of the mod global configuration as information messages to
-	 * the log. Includes a mod header with key {@link ModInfo} details.
-	 */
-	public void dumpConfig() {
-		dumpConfig(ModInfo.NAME);
-	}
-	
-	/**
-	 * Returns a list of valid configuration fields that can be set.
-	 * @return a string array of the valid field names.
-	 */
-	public String[] getCfgFields() {
-		return getCfgFields ("place", true);
-	}
-
-	/**
-	 * Retrieve a description of the data type of a configuration field.
-	 * May be Boolean, String, Int, Float, Double or Enum.
-	 * @param searchName
-	 * @return a string representing the class recorded by the {@link Cfg} annotation
-	 * or null if the configuration field is not found.
-	 */
-	public String getCfgFieldType(String searchName) {
-		return getCfgFieldType(searchName, "place");
-	}
-
-	/**
-	 * Retrieve valid values for a configuration field.
-	 * @param searchName
-	 * @return an array of valid values if known. For numeric fields with a min/max
-	 * range, a single value is returned identifying the min ... max values 
-	 */
-	public String[] getCfgFieldValues(String searchName) {
-		return getCfgFieldValues(searchName, "place");
-	}
-		
-	/**
-	 * Get a configuration field by name and return the value as a string.
-	 * Allow for an optional prefix at the start of the actual field name.
-	 * @param searchName is the configuration field to set
-	 * @return the value of the field as a string
-	 * @throws NoSuchFieldException if the field cannot be found (with or without prefix)
-	 */
-	public String getCfgField(String searchName) throws NoSuchFieldException {
-		return getCfgField(searchName, "place");
 	}
 
 	/**
@@ -320,8 +274,9 @@ public class Config extends ConfigManager {
 	 * @return true if the field was updated successfully, false if the value is not valid.
 	 * @throws NoSuchFieldException
 	 */
+	@Override
 	public boolean setCfgField(String searchName, String value) throws NoSuchFieldException {
-		boolean b = setCfgField(searchName, "place", value);
+		boolean b = super.setCfgField(searchName, value);
 		convertConfig();
 		
 		// handle changes in placeControlMode here
@@ -333,7 +288,7 @@ public class Config extends ConfigManager {
 			if (KeyBind.reInit(placeControlMode)) {
 				Minecraft mc = Minecraft.getMinecraft();
 				if (mc.thePlayer != null) 
-					mc.thePlayer.addChatMessage(Lang.getMsg("cmd.keybind"));
+					mc.thePlayer.addChatMessage(Lang.getMsgParams(ModInfo.ID, "reload.keybind", ModInfo.SHORT_NAME));
 			}
 		}
 		return b;
@@ -345,10 +300,10 @@ public class Config extends ConfigManager {
 	
 	/**
 	 * Check the value of {@link logLevelOverride} and override Logging level if set.
-	 * <p>See {@link ConfigManager.doCheck}</p>
+	 * <p>See {@link ConfigBase.doCheck}</p>
 	 * @param field is the reflected field reference
 	 * @param p is the Forge property information
-	 * @return false to indicate it has already stored the field value if necessary.
+	 * @return true if field is okay or false if invalid.
 	 */
 	@SuppressWarnings("unused")
 	private boolean check_logLevelOverride (Field field, Property p) {
@@ -359,21 +314,23 @@ public class Config extends ConfigManager {
 				newLevel = Level.parse(logLevelOverride.trim().toUpperCase());
 				Log.setLevel(newLevel);
 				Log.fine("Config: LogLevel override to "+logLevelOverride);
+				return true;
 	        } catch(IllegalArgumentException e) {
 				Log.fine("Config: LogLevel override "+logLevelOverride+" invalid - rewrite config as empty");
 	        	p.set(logLevelOverride = "");
+	        	return false;
 	        }
 		}
-		return false; // don't bother to store
+		return true;
 	}
 
 
 	/**
 	 * Check the value of {@link placeAutoOff} and force true if needed based on control mode
-	 * <p>See {@link ConfigManager.doCheck}</p>
+	 * <p>See {@link ConfigBase.doCheck}</p>
 	 * @param field is the reflected field reference
 	 * @param p is the Forge property information
-	 * @return false to indicate it has already stored the field value if necessary.
+	 * @return true if field is okay or false if invalid.
 	 */
 	@SuppressWarnings("unused")
 	private boolean check_placeAutoOff (Field field, Property p) {
@@ -381,8 +338,9 @@ public class Config extends ConfigManager {
 		if (!placeAutoOff && (placeControlMode == ControlMode.SINGLEKEY || placeControlMode == ControlMode.FORWARDBACK)) {
 			p.set(placeAutoOff = true);
 			Log.fine("Config: placeAutoOff must be ON for control mode SINGLEKEY or FORWARDBACK - rewrite config");
+			return false;
 		}
-		return false; // don't bother to store
+		return true;
 	}
 	
 	// ****************************************************************
@@ -391,7 +349,7 @@ public class Config extends ConfigManager {
 	
 	/**
 	 * Converts config values loaded in one format to the internal format required.
-	 * <p>Must be called each time configuration is loaded.
+	 * <p>Must be called each time configuration is loaded, reloaded or changed.
 	 */
 	private void convertConfig () {
 		textScaling = textScalingPercent / 100F;

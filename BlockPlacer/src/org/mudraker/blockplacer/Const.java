@@ -7,7 +7,6 @@ package org.mudraker.blockplacer;
  * <p>Pattern: Enforced Static Immutable Constants</p>
  * 
  * @author MudRaker 
- * @version %I%, %G%
  */
 public class Const {
 	private Const() {}	// Static: Prevent instantiation

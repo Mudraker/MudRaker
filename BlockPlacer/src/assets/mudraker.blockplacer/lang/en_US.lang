@@ -1,63 +1,66 @@
-# BlockPlacer misc strings
-phrase.values=Values
+# BlockPlacer general strings
+mudraker.blockplacer.phrase.values=Values
 
 # BlockPlacer command usage
-command.mrbp.usage=mrbp [reload | log <level> | console [off] | set <field> <value> | [get | ?] <field>]
-command.mrbp.log.usage=mrbp log [off | severe | warning | info | config | fine | finer | finest | all]
-command.mrbp.get.usage=mrbp [get | ?] <field>
-command.mrbp.get.nofield.usage=mrbp get - invalid field name (%s)
-command.mrbp.set.usage=mrbp set <field> <value>
-command.mrbp.set.nofield.usage=mrbp set - invalid field name (%s)
-command.mrbp.set.fieldvalue.usage=mrbp set - invalid value (%s) for field (%s): requires %s
+mudraker.blockplacer.cmd.mrbp.usage=mrbp [log <level> | console [off] | reload | set <field> <value> | [get | ?] <field>]
+
+# Standard MAIN command support
+mudraker.blockplacer.cmd.main.player.usage=Command sender must be a player.
+mudraker.blockplacer.msg.main.console=%s console logging %s
+mudraker.blockplacer.cmd.main.log.usage=%s log [off | severe | warning | info | config | fine | finer | finest | all]
+mudraker.blockplacer.msg.main.log=%s session logLevel(%s)
+mudraker.blockplacer.msg.main.reload=%s configuration reloaded!
+mudraker.blockplacer.msg.main.get=%s field %s value %s
+mudraker.blockplacer.msg.main.get.empty=%s field %s is empty or inaccessible
+mudraker.blockplacer.cmd.main.get.usage=%s [get | ?] <field>
+mudraker.blockplacer.cmd.main.get.nofield.usage=%s get: Invalid field name (%s)
+mudraker.blockplacer.msg.main.set=%s field %s set to %s
+mudraker.blockplacer.cmd.main.set.usage=%s set <field> <value>
+mudraker.blockplacer.cmd.main.set.nofield.usage=%s set: Invalid field name (%s)
+mudraker.blockplacer.cmd.main.set.fieldvalue.usage=%s set: Invalid value (%s) for field (%s): requires %s
 
 # BlockPlacer messages
-message.cmd.keybind=Key bindings reloaded!
-message.cmd.reload=BlockPlacer configuration reloaded!
-message.cmd.console=BlockPlacer console logging %s
-message.cmd.log=BlockPlacer session logLevel(%s)
-message.cmd.get=Field %s value %s
-message.cmd.empty=Field %s is empty or inaccessible
-message.cmd.set=Field %s set to %s
+mudraker.blockplacer.msg.reload.keybind=%s key bindings reloaded!
 
 # Key binding names
-key.rotvc.name=Rotate Vertical Clockwise
-key.rotva.name=Rotate Vertical AntiClockwise
-key.rothc.name=Rotate Horizontal Clockwise
-key.rotha.name=Rotate Horizontal AntiClockwise
-key.3dtoggle.name=BlockPlacer Toggle3D
-key.next.name=BlockPlacer Next
-key.previous.name=BlockPlacer Previous
-key.toggle.name=BlockPlacer Toggle 
+mudraker.blockplacer.key.rotvc.name=Rotate Vertical Clockwise
+mudraker.blockplacer.key.rotva.name=Rotate Vertical AntiClockwise
+mudraker.blockplacer.key.rothc.name=Rotate Horizontal Clockwise
+mudraker.blockplacer.key.rotha.name=Rotate Horizontal AntiClockwise
+mudraker.blockplacer.key.3dtoggle.name=BlockPlacer Toggle3D
+mudraker.blockplacer.key.next.name=BlockPlacer Next
+mudraker.blockplacer.key.previous.name=BlockPlacer Previous
+mudraker.blockplacer.key.toggle.name=BlockPlacer Toggle 
 
 # Configuration file comments
-category.blockplacer_controls.comment=Defines BlockPlacer Controls to activate BlockPlacer mode to show the placement wireframe (but only if you are\nholding a placeable block and are not pressing 'Attack') and to select between the different sides of the block\nwhere a new block can be placed. Any side where a block cannot be placed is automatically skipped.\nNote that the actual key definitions are defined in the standard Minecraft key configuration menus.\nControlMode determines the number and function of keys used to control the placement location.\nOther options set BlockPlacer to automatically turn off after placing, to allow repeating placements, or to\ntry to 'intelligently' determine the likely side you want to place on.
-category.blockplacer_user_interface.comment=Defines location and colours of the BlockPlacer Icon, facing text and wireframe rendering.\nIcon location uses a scaled % of screen size plus a pixel offset for both X (horizontal) and Y (vertical) axis\nFacing text (if enabled) is scaled by a factor and drawn below the icon with a Gap\n(unless there is insufficient space, when it moves above the icon). Text colour is defined by RGB+A values.\nWireframe render is defined by RGB+Alpha (transparency) values, line thickness and box expansion factor.\nThe box expansion factor increases the frame by a fraction of the block size to make it slightly bigger than a block.
-field.largeIcon.comment=Use larger 27x27 Icon instead of smaller 18x18 icon?
-field.xScaled.comment=Percentage across screen
-field.yScaled.comment=Percentage down screen
-field.xOffset.comment=Horizontal pixel offset, Left is <0, Right is >0
-field.yOffset.comment=Vertical pixel offset, Up is <0, Down is >0
-field.drawFacingText.comment=Draw the placement facing and relative direction text?
-field.textScalingPercent.comment=Placement text scaling percentage
-field.textSpacingGap.comment=Pixel gap between Icon and Placement text
-field.textAlpha.comment=Text Alpha transparency value [0=Invisible, 255=Opaque]
-field.textRed.comment=Text Red colour value
-field.textGreen.comment=Text Green colour value
-field.textBlue.comment=Text Blue colour value
-field.frameAlpha.comment=Frame Alpha transparency value [0=Invisible, 255=Opaque]
-field.frameRed.comment=Frame Red colour value
-field.frameGreen.comment=Frame Green colour value
-field.frameBlue.comment=Frame Blue colour value
-field.frameLineWidth.comment=Frame line width in pixels
-field.frameExpand.comment=Frame expansion factor as a fraction of one block width
-field.frameSwapInNether.comment=Swap frame Red and Green colour values when in the Nether?
-field.placeControlMode.comment=Control mode determines the number and function of keys used to activate & control the placement location,\nor enables small mouse movements to control the placement side instead\n\nKey functions supported are:\n  Toggle  - toggle BlockPlacer on or off. Modes with no toggle key force AutoOff option to be enabled.\n  Forward - switch between all valid placement sides - BACK, ABOVE, FRONT, BELOW, RIGHT, LEFT.\n  Backward- switch between all valid placement sides in the opposite order.\n  Rotate3D- rotate the placement side horizontally or vertically clockwise or anticlockwise.\n\nMouse Control operates by detecting movement and shifting the placement side to that side.\nFor the back side, move the mouse diagonally to the left (either up or down), similarly\nfor the front side, move the mouse diagonally to the right (either up or down).\nSensitivity can be adjusted with MouseWobble and MouseThreshold options.\n\nEach mode is a combination of these functions:\n  SINGLEKEY     - 1 key for Toggle+Forward (AutoOff)\n  TOGGLEFWD     - 1 key for Toggle, 1 key for Forward\n  FORWARDBACK   - 1 key for Toggle+Forward, 1 key for Toggle+Backward (AutoOff)\n  TOGGLEFWDBACK - 1 key for Toggle, 1 for Forward and 1 for Backward\n  ROTATE3D      - 1 key for Toggle, 4 keys for Rotate3D\n  MOUSE         - 1 key for Toggle, Mouse movement selects the side to place.\n
-field.placeAutoRpt.comment=After placing a block, AutoRepeat mode causes BlockPlacer to automatically set the default place location\nto be the same side of the block just placed. This allows a row or column of blocks to be placed without having\nto move the cursor. Note that it is still limited by player reach.
-field.placeAutoOff.comment=BlockPlacer mode is automatically turned off when the cursor is moved to a different block.\nAlso applies after a block is successfully placed unless AutoRepeat mode is enabled.\nThis mode is forced ON by SINGLEKEY and FORWARDBACK control modes.
-field.placeAutoEnd.comment=BlockPlacer mode is automatically Ended instead of just Reset when there are\nno more sides of the original block to place on (if AutoRpt is off)\nor the placing has repeated to the extreme of the player reach (if AutoRpt is on).\nNote: Only relevant when placeAutoOff is not enabled.
-field.placeResetSound.comment=Play a sound if forced to Reset BlockPlacer because there is no valid place location?\nNote: Only relevant when placeAutoOff is not enabled.
-field.placeSmartStart.comment=When BlockPlacer is activated, it automatically chooses the starting place side based on likely scenarios\nto give an 'intelligent' default. This based on whether you are looking up or down (or level) and which side you select.
-field.mouseWobble.comment=Defines the size of small 'wobble' mouse movements that are ignored when the control mode is MOUSE.\nIf the shift on a mouse axis is this or less, it is treated as not moving on that axis.
-field.mouseThreshold.comment=Minimum movement threshold for the mouse to trigger a change in the placement location when the control\nmode is MOUSE. If the sum of movement on both axes within 1 tick is less than this, it is ignored.
-field.logLevelOverride.comment=Overrides the default mod logging level (OFF, ERROR, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL).\nThe default level can be set in config/logging.properties file e.g. MudRaker.BlockPlacer.Level = INFO
+mudraker.blockplacer.category.blockplacer_controls.comment=Defines BlockPlacer Controls to activate BlockPlacer mode to show the placement wireframe (but only if you are\nholding a placeable block and are not pressing 'Attack') and to select between the different sides of the block\nwhere a new block can be placed. Any side where a block cannot be placed is automatically skipped.\nNote that the actual key definitions are defined in the standard Minecraft key configuration menus.\nControlMode determines the number and function of keys used to control the placement location.\nOther options set BlockPlacer to automatically turn off after placing, to allow repeating placements, or to\ntry to 'intelligently' determine the likely side you want to place on.
+mudraker.blockplacer.category.blockplacer_user_interface.comment=Defines location and colours of the BlockPlacer Icon, facing text and wireframe rendering.\nIcon location uses a scaled % of screen size plus a pixel offset for both X (horizontal) and Y (vertical) axis\nFacing text (if enabled) is scaled by a factor and drawn below the icon with a Gap\n(unless there is insufficient space, when it moves above the icon). Text colour is defined by RGB+A values.\nWireframe render is defined by RGB+Alpha (transparency) values, line thickness and box expansion factor.\nThe box expansion factor increases the frame by a fraction of the block size to make it slightly bigger than a block.
+mudraker.blockplacer.field.largeIcon.comment=Use larger 27x27 Icon instead of smaller 18x18 icon?
+mudraker.blockplacer.field.xScaled.comment=Percentage across screen
+mudraker.blockplacer.field.yScaled.comment=Percentage down screen
+mudraker.blockplacer.field.xOffset.comment=Horizontal pixel offset, Left is <0, Right is >0
+mudraker.blockplacer.field.yOffset.comment=Vertical pixel offset, Up is <0, Down is >0
+mudraker.blockplacer.field.drawFacingText.comment=Draw the placement facing and relative direction text?
+mudraker.blockplacer.field.textScalingPercent.comment=Placement text scaling percentage
+mudraker.blockplacer.field.textSpacingGap.comment=Pixel gap between Icon and Placement text
+mudraker.blockplacer.field.textAlpha.comment=Text Alpha transparency value [0=Invisible, 255=Opaque]
+mudraker.blockplacer.field.textRed.comment=Text Red colour value
+mudraker.blockplacer.field.textGreen.comment=Text Green colour value
+mudraker.blockplacer.field.textBlue.comment=Text Blue colour value
+mudraker.blockplacer.field.frameAlpha.comment=Frame Alpha transparency value [0=Invisible, 255=Opaque]
+mudraker.blockplacer.field.frameRed.comment=Frame Red colour value
+mudraker.blockplacer.field.frameGreen.comment=Frame Green colour value
+mudraker.blockplacer.field.frameBlue.comment=Frame Blue colour value
+mudraker.blockplacer.field.frameLineWidth.comment=Frame line width in pixels
+mudraker.blockplacer.field.frameExpand.comment=Frame expansion factor as a fraction of one block width
+mudraker.blockplacer.field.frameSwapInNether.comment=Swap frame Red and Green colour values when in the Nether?
+mudraker.blockplacer.field.placeControlMode.comment=Control mode determines the number and function of keys used to activate & control the placement location,\nor enables small mouse movements to control the placement side instead\n\nKey functions supported are:\n  Toggle  - toggle BlockPlacer on or off. Modes with no toggle key force AutoOff option to be enabled.\n  Forward - switch between all valid placement sides - BACK, ABOVE, FRONT, BELOW, RIGHT, LEFT.\n  Backward- switch between all valid placement sides in the opposite order.\n  Rotate3D- rotate the placement side horizontally or vertically clockwise or anticlockwise.\n\nMouse Control operates by detecting movement and shifting the placement side to that side.\nFor the back side, move the mouse diagonally to the left (either up or down), similarly\nfor the front side, move the mouse diagonally to the right (either up or down).\nSensitivity can be adjusted with MouseWobble and MouseThreshold options.\n\nEach mode is a combination of these functions:\n  SINGLEKEY     - 1 key for Toggle+Forward (AutoOff)\n  TOGGLEFWD     - 1 key for Toggle, 1 key for Forward\n  FORWARDBACK   - 1 key for Toggle+Forward, 1 key for Toggle+Backward (AutoOff)\n  TOGGLEFWDBACK - 1 key for Toggle, 1 for Forward and 1 for Backward\n  ROTATE3D      - 1 key for Toggle, 4 keys for Rotate3D\n  MOUSE         - 1 key for Toggle, Mouse movement selects the side to place.\n
+mudraker.blockplacer.field.placeAutoRpt.comment=After placing a block, AutoRepeat mode causes BlockPlacer to automatically set the default place location\nto be the same side of the block just placed. This allows a row or column of blocks to be placed without having\nto move the cursor. Note that it is still limited by player reach.
+mudraker.blockplacer.field.placeAutoOff.comment=BlockPlacer mode is automatically turned off when the cursor is moved to a different block.\nAlso applies after a block is successfully placed unless AutoRepeat mode is enabled.\nThis mode is forced ON by SINGLEKEY and FORWARDBACK control modes.
+mudraker.blockplacer.field.placeAutoEnd.comment=BlockPlacer mode is automatically Ended instead of just Reset when there are\nno more sides of the original block to place on (if AutoRpt is off)\nor the placing has repeated to the extreme of the player reach (if AutoRpt is on).\nNote: Only relevant when placeAutoOff is not enabled.
+mudraker.blockplacer.field.placeResetSound.comment=Play a sound if forced to Reset BlockPlacer because there is no valid place location?\nNote: Only relevant when placeAutoOff is not enabled.
+mudraker.blockplacer.field.placeSmartStart.comment=When BlockPlacer is activated, it automatically chooses the starting place side based on likely scenarios\nto give an 'intelligent' default. This based on whether you are looking up or down (or level) and which side you select.
+mudraker.blockplacer.field.mouseWobble.comment=Defines the size of small 'wobble' mouse movements that are ignored when the control mode is MOUSE.\nIf the shift on a mouse axis is this or less, it is treated as not moving on that axis.
+mudraker.blockplacer.field.mouseThreshold.comment=Minimum movement threshold for the mouse to trigger a change in the placement location when the control\nmode is MOUSE. If the sum of movement on both axes within 1 tick is less than this, it is ignored.
+mudraker.blockplacer.field.logLevelOverride.comment=Overrides the default mod logging level (OFF, ERROR, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL).\nThe default level can be set in config/logging.properties file e.g. MudRaker.BlockPlacer.Level = INFO
 #end

@@ -10,7 +10,6 @@ import java.util.List;
  * <p>Pattern: Enforced Static Immutable</p>
  *  
  * @author MudRaker
- * @version %I%, %G%
  */
 public class Util {
 	private Util() {} // Static: Prevent instantiation
@@ -192,13 +191,44 @@ public class Util {
 		}
 		return sb.toString();
 	}
+	
+	/**
+	 * Merge two lists into a single list
+	 * @param first is the first list
+	 * @param second is the second list
+	 * @return a list containing both of the two lists
+	 */
+	public static List mergeLists (List first, List second) {
+		if (first == null)
+			return second;
+		else if (second == null)
+			return first;
+		else {
+			first.addAll(second);
+			return first;
+		}
+	}
 
 	/**
-	 * Flattens a string array for printing
+	 * Flattens a string array for printing with NO commas
 	 * @param aString the string array to flatten
 	 * @return the string for printing.
 	 */
 	public static String flattenArray (String[] aString) {
+		StringBuilder sb = new StringBuilder();
+		for (String s : aString) {
+			if (sb.length() > 0) sb.append(" ");
+			sb.append(s.toString());
+		}
+		return sb.toString();
+	}
+	
+	/**
+	 * Flattens a string array for printing with commas
+	 * @param aString the string array to flatten
+	 * @return the string for printing.
+	 */
+	public static String flattenArrayWithCommas (String[] aString) {
 		StringBuilder sb = new StringBuilder();
 		for (String s : aString) {
 			if (sb.length() > 0) sb.append(", ");

@@ -3,6 +3,7 @@
 	<name>BlockPlacer</name>
 	<comment></comment>
 	<projects>
+		<project>Common</project>
 		<project>Minecraft</project>
 	</projects>
 	<buildSpec>
