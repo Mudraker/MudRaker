@@ -14,7 +14,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
  * @version %I%, %G%
  */
 @MCVersion(value = "1.6.4")
-@TransformerExclusions(value={"mudraker.myport"})
+@TransformerExclusions(value={"org.mudraker.myport"})
 public class MyPortPlugin implements IFMLLoadingPlugin {
 
 	// Location of the MyPort JAR file
