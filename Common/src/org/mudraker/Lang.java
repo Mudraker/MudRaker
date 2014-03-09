@@ -30,7 +30,7 @@ public class Lang extends I18n {
 	 * @return is the translated phrase text.
 	 */
 	public static String getPhrase (String mod, String phraseName) {
-		return I18n.getString(mod.toLowerCase()+".phrase."+phraseName);
+		return getString(mod.toLowerCase()+".phrase."+phraseName);
 	}
 	
 	/**
@@ -40,7 +40,7 @@ public class Lang extends I18n {
 	 * @return is the translated key description for the binding.
 	 */
 	public static String getKeyName (String mod, String keyName) {
-		return I18n.getString(mod.toLowerCase()+".key."+keyName+".name");
+		return getString(mod.toLowerCase()+".key."+keyName+".name");
 	}
 	
 	/**
@@ -50,7 +50,7 @@ public class Lang extends I18n {
 	 * @return is the translated category comment.
 	 */
 	public static String getCategoryComment (String mod, String Category) {
-		return Util.newLines(I18n.getString(mod.toLowerCase()+".category."+Category+".comment"));
+		return Util.newLines(getString(mod.toLowerCase()+".category."+Category+".comment"));
 	}
 	
 	/**
@@ -60,7 +60,7 @@ public class Lang extends I18n {
 	 * @return is the translated field name.
 	 */
 	public static String getFieldName (String mod, String fieldName) {
-		return I18n.getString(mod.toLowerCase()+".field."+fieldName+".name");
+		return getString(mod.toLowerCase()+".field."+fieldName+".name");
 	}
 	
 	/**
@@ -70,7 +70,7 @@ public class Lang extends I18n {
 	 * @return is the translated field comment.
 	 */
 	public static String getFieldComment (String mod, String fieldName) {
-		return Util.newLines(I18n.getString(mod.toLowerCase()+".field."+fieldName+".comment"));
+		return Util.newLines(getString(mod.toLowerCase()+".field."+fieldName+".comment"));
 	}
 	
 	/**
@@ -81,7 +81,7 @@ public class Lang extends I18n {
 	 * @return is the translated command usage.
 	 */
 	public static String getCommandUsage (String mod, String command, String subCommand) {
-		return I18n.getString(mod.toLowerCase()+".cmd."+command
+		return getString(mod.toLowerCase()+".cmd."+command
 				+((subCommand != null && !subCommand.isEmpty())?"."+subCommand:"")
 				+".usage");
 	}
@@ -93,7 +93,7 @@ public class Lang extends I18n {
 	 * @return is the translated message text
 	 */
 	public static String getMsg (String mod, String msg) {
-		return I18n.getString(mod.toLowerCase()+".msg."+msg);
+		return getString(mod.toLowerCase()+".msg."+msg);
 	}
 	
 	/**
@@ -104,6 +104,25 @@ public class Lang extends I18n {
 	 * @return is the translated message text with parameters inserted
 	 */
 	public static String getMsgParams (String mod, String msg, Object ... objects) {
-		return I18n.getStringParams(mod.toLowerCase()+".msg."+msg, objects);
+		return getStringParams(mod.toLowerCase()+".msg."+msg, objects);
+	}
+	
+	/**
+	 * 1.7.2 compatibility function
+	 * @param s is the language key to retrieve the string for 
+	 * @return the translated language string
+	 */
+	public static String getString(String s) {
+		return format(s);
+	}
+	
+	/**
+	 * 1.7.2 compatibility function
+	 * @param s is the language key to retrieve the string for 
+	 * @param objects are the parameter objects for the string formatting
+	 * @return the translated and formatted language string
+	 */
+	public static String getStringParams(String s, Object ... objects) {
+		return format(s, objects);
 	}
 }
