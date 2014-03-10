@@ -57,7 +57,7 @@ public abstract class ClientCommandMain extends ClientCommandBase {
 	 * @param aString is the string array of the parameters
 	 */
 	@Override
-	public void processCommand(ICommandSender sender, String[] aString) {
+	public void processClientCommand(ICommandSender sender, String[] aString) {
 		// Log the command
 		Log.fine("ProcessCommand: "+getCommandName()+" "+Util.flattenArray(aString));
 
@@ -97,7 +97,7 @@ public abstract class ClientCommandMain extends ClientCommandBase {
 		
 		// UNKNOWN HERE - hand to super to deal with!
 		} else {
-			super.processCommand (sender,  aString);
+			super.processClientCommand (sender,  aString);
 		}
 	}
 

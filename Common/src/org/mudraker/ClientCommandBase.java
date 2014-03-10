@@ -1,13 +1,17 @@
 package org.mudraker;
 
+import static net.minecraft.util.EnumChatFormatting.RED;
+
 import java.util.List;
 
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntityCommandBlock;
+import net.minecraft.util.ChatMessageComponent;
 import net.minecraftforge.client.ClientCommandHandler;
 
 /**
@@ -87,12 +91,33 @@ public abstract class ClientCommandBase implements ICommand {
 	
 	/**
 	 * Handle unknown commands with a usage exception
-	 * <p>Subclasses should override and pass unknown commands to super</p>
+	 * <p>Subclasses are not permitted to override this version - use processClientCommand</p>
 	 * @param sender is the command sender
 	 * @param aString is the string array of the parameters
 	 */
 	@Override
-	public void processCommand(ICommandSender sender, String[] aString) {
+	public final void processCommand(ICommandSender sender, String[] aString) {
+		/* 
+		 * Forge ClientCommandHandler will pass any command with an exception back to the server
+		 * to process which causes an invalid command message. So, if there is an EXPECTED exception
+		 * we handle the chat message here so it won't do that.
+		 */
+		try {
+			this.processClientCommand (sender, aString);
+		} catch (WrongUsageException wue) {
+            sender.sendChatToPlayer(format("commands.generic.usage", format(wue.getMessage(), wue.getErrorOjbects())).setColor(RED));
+        } catch (CommandException ce) {
+            sender.sendChatToPlayer(format(ce.getMessage(), ce.getErrorOjbects()).setColor(RED));
+        } 
+	}
+	
+	/**
+	 * Handle unknown commands with a usage exception
+	 * <p>Subclasses should override and pass unknown commands to super</p>
+	 * @param sender is the command sender
+	 * @param aString is the string array of the parameters
+	 */
+	public void processClientCommand(ICommandSender sender, String[] aString) {
 		Log.info("Unknown command: " + commandName + " " + Util.flattenArray(aString));
 		throw new WrongUsageException (Lang.getString(getCommandUsage(sender)), new Object[0]);
 	}
@@ -209,4 +234,10 @@ public abstract class ClientCommandBase implements ICommand {
 			Log.info(msg);
 		}
 	}
+	
+    // Couple of helpers because the mcp names are stupid and long... 
+    private ChatMessageComponent format(String str, Object... args)
+    {
+        return ChatMessageComponent.createFromTranslationWithSubstitutions(str, args);
+    }
 }
