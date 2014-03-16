@@ -13,7 +13,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
  * @author MudRaker
  * @version %I%, %G%
  */
-@MCVersion(value = "1.6.4")
+@MCVersion(value = "1.6.2")
 @TransformerExclusions(value={"org.mudraker.myport"})
 public class MyPortPlugin implements IFMLLoadingPlugin {
 
@@ -34,7 +34,7 @@ public class MyPortPlugin implements IFMLLoadingPlugin {
 	public void injectData(Map<String, Object> data) {
 		//This will retrieve the jar file of this mod
 		location = (File) data.get("coremodLocation");
-		//System.out.println("*** MyPortPlugin jar location: " +location.getName());
+		System.out.println("*** MyPortPlugin jar location: " +(location==null ? "(null)" : location.getName()));
 	}
 	
 	@Override

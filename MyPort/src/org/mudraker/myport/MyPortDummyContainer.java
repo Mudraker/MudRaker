@@ -21,7 +21,7 @@ public class MyPortDummyContainer extends DummyModContainer {
 	// Constants
 	public static final String ID = "MudRaker.MyPort";
 	public static final String NAME = "MyPort by MudRaker";
-	public static final String VERSION = "0.2.0";
+	public static final String VERSION = "1.0.0";
 	
 	// Static Mutables
 	public static Logger logger;
@@ -51,7 +51,6 @@ public class MyPortDummyContainer extends DummyModContainer {
 	
 	@Subscribe
 	public void preInit(FMLPreInitializationEvent event) {
-
 		// Setup logger
 		logger = event.getModLog();
 		logger.setParent(FMLLog.getLogger());		
@@ -59,16 +58,6 @@ public class MyPortDummyContainer extends DummyModContainer {
 		configLoad(event.getSuggestedConfigurationFile());
 		// Say Hello
 		logger.log(Level.INFO,NAME+": Override port to "+portNumber);
-
-		/*
-		// Force HttpUtil module to be loaded now - so snooper does not whinge later.
-		try {
-			HttpUtil.func_76181_a();
-			EventHandler.class
-		} catch (Exception e) {
-			// HUSH
-		}
-		*/
 	}
 	
 	// *******************
