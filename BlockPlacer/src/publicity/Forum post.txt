@@ -42,7 +42,8 @@ Perfect for building up, down or outward ...
 [/spoiler]
 
 [spoiler=Mod Videos]
-Coming Soon!!
+My first showcase, thanks to JANKYnik
+[media]http://www.youtube.com/watch?feature=player_embedded&v=oQEGyQgWZZM[/media]
 [/spoiler]
 
 [spoiler='Downloads']Downloads ...[list]
@@ -214,4 +215,9 @@ general {
 }
 [/CODE][/spoiler]
 [color=#800080]And I hid this in the Forge config directory coz I know that's the last place you'll look![/color]
+[/spoiler]
+
+[spoiler='Modpacks: Free to a good home']Wanna put this in your mod pack?
+As long as you're not charging money - go right ahead.
+I'd appreciate a credit & please post a link below so I can have a play :)
 [/spoiler]
