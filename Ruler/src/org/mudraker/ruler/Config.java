@@ -9,6 +9,7 @@ import net.minecraftforge.common.Property;
 
 import org.mudraker.ConfigBase;
 import org.mudraker.Log;
+import org.mudraker.Util;
 
 /**
  * Ruler Mod global configuration. 
@@ -28,7 +29,7 @@ public class Config extends ConfigBase {
 	} 
 
 	/** Configuration category name for UI related fields */
-	//private static final String UI = "Ruler User Interface";
+	private static final String UI = "Ruler User Interface";
 	/** Configuration category name for Control related fields */
 	//private static final String CTL = "Ruler Controls";
 
@@ -49,9 +50,46 @@ public class Config extends ConfigBase {
 	// UI configuration
 	// ****************************************************************
 	
-	/** Use the large icon instead of the small one? */
-	//@Cfg(cat = UI, value = boolean.class) 
-	//public boolean largeIcon = true;
+	/** Horizontal screen location as percentage of screen width */
+	@Cfg(cat = UI, value = double.class, min = 0.0D, max = 100.0D)
+	public double xScaled = 100;
+
+	/** Vertical screen location as percentage of screen height */
+	@Cfg(cat = UI, value = double.class, min = 0.0D, max = 100.0D)
+	public double yScaled = 20;
+
+	/** Pixel offset to scaled horizontal location */
+	@Cfg(cat = UI, value = int.class, min = -100, max = +100)
+	public int xOffset = -2;
+
+	/** Pixel offset to scaled vertical location */
+	@Cfg(cat = UI, value = int.class, min = -100, max = +100)
+	public int yOffset = 0;
+
+	/** Scaling factor for ruler text (0-1) */
+	public float textScaling;
+	/** Internal Scaling percentage for ruler text */
+	@Cfg(cat = UI, value = int.class, min = 1, max = 100)
+	private int textScalingPercent = 50;
+
+	/** Pixel gap between icon and text */
+	@Cfg(cat = UI, value = int.class, min = 0, max = 20)
+	public int textSpacingGap = 2;
+	
+	/** Ruler text colour - using hexadecimal RGBA notation */
+	public int textColour;
+	/** Internal text Red colour value */
+	@Cfg(cat = UI, value = int.class, min = 0, max = 255)
+	private int textRed = 0xff;
+	/** Internal text Green colour value */
+	@Cfg(cat = UI, value = int.class, min = 0, max = 255)
+	private int textGreen = 0xff;
+	/** Internal text Blue colour value */
+	@Cfg(cat = UI, value = int.class, min = 0, max = 255)
+	private int textBlue = 0xff;
+	/** Internal text Alpha transparency value */
+	@Cfg(cat = UI, value = int.class, min = 0, max = 255)
+	private int textAlpha = 0xa0;
 
 	// ****************************************************************
 	// CONTROL configuration
@@ -74,7 +112,7 @@ public class Config extends ConfigBase {
 	@Override
 	public void loadConfig(File fileName) {
 		Log.info("*** " + ModInfo.LONG_NAME + " Version: " + ModInfo.VERSION + " ***");
-		super.loadConfig(fileName, null);
+		super.loadConfig(fileName, new String[] {UI});
 		convertConfig();
 	}
 
@@ -142,5 +180,7 @@ public class Config extends ConfigBase {
 	 * <p>Must be called each time configuration is loaded.
 	 */
 	private void convertConfig () {
+		textScaling = textScalingPercent / 100F;
+		textColour = Util.rgbaColour (textRed, textGreen, textBlue, textAlpha);
 	}
 }

@@ -1,7 +1,5 @@
 package org.mudraker;
 
-import net.minecraft.client.Minecraft;
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,6 +8,7 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
 
 /** 
  * MudRaker Logging functions.
@@ -157,16 +156,10 @@ public class Log {
 	 */
 	private static String getSide() {
 		String side;
-		Minecraft mc = Minecraft.getMinecraft();
-		
-		if (mc == null || mc.theWorld == null) {
-			try {
-				side = (FMLCommonHandler.instance().getSide().isClient() ? "Client: " : "Server: ");
-			} catch (Exception e) {
-				side = "UnknownSide: ";
-			}
-		} else {
-			side = (mc.theWorld.isRemote ? "Client: " : "Server: ");
+		try {
+			side = (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER ? "Server: " : "Client: ");
+		} catch (Exception e) {
+			side = "UnknownSide: ";
 		}
 		return side;
 	}
@@ -177,7 +170,7 @@ public class Log {
 	 * @param level is the log4J level
 	 * @returns the logging level prior to changing it. 
 	 */
-	private static Level setLevel(Logger log, Level level) {
+	public static Level setLevel(Logger log, Level level) {
 	  LoggerContext ctx = (LoggerContext)LogManager.getContext(false);
 	  Configuration conf = ctx.getConfiguration();
 	  LoggerConfig lconf = conf.getLoggerConfig(log.getName());
@@ -192,7 +185,7 @@ public class Log {
 	 * @param log is the log4J logger
 	 * @returns the current logging level for that logger 
 	 */
-	private static Level getLevel(Logger log) {
+	public static Level getLevel(Logger log) {
 	  LoggerContext ctx = (LoggerContext)LogManager.getContext(false);
 	  Configuration conf = ctx.getConfiguration();
 	  LoggerConfig lconf = conf.getLoggerConfig(log.getName());

@@ -43,8 +43,8 @@ public class Command extends ClientCommandMain {
 	 */
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void processCommand(ICommandSender sender, String[] aString) {
-		super.processCommand (sender, aString);
+	public void processClientCommand(ICommandSender sender, String[] aString) {
+		super.processClientCommand (sender, aString);
 	}
 	
 	/**

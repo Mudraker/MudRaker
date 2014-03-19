@@ -181,18 +181,19 @@ public class BlockPlacer {
 	public static Coordinate establishPlacement(Minecraft mc, EntityPlayer entityPlayer, MovingObjectPosition mop, Coordinate drawPosition) {
 		Config config = Config.getInstance();
 		boolean isValid = isCurrentPlaceValid(mc.theWorld);
+		boolean shifted = false;
 		
 		// check if the place location needs to be reset
-		if (placeReinit || mouseShifted(mop) || !isValid) {
+		if (placeReinit || (shifted = mouseShifted(mop)) || !isValid) {
 			if (placeReinit) {
 				Log.fine("Reset placing - Forced reinitialise to " + mop.blockX + "," + mop.blockY + "," + mop.blockZ + "/" + mop.sideHit);
-			} else if (!isValid) {
-				Log.fine("Block at placePosition " + placePosition + " absent - Reset");
-				placeReset(mc);
 			} else if (config.placeAutoOff) {
 				Log.info("Place mode auto disabled - selection changed ");
 				placeEnabled = false;
 				return null; // FORCED EARLY EXIT
+			} else if (!shifted && !isValid) {
+				Log.fine("Block at placePosition " + placePosition + " absent - Reset");
+				placeReset(mc);
 			} else {
 				Log.fine("Reset placing - Mouse shift " + placeMop.blockX + ","
 						+ placeMop.blockY + "," + placeMop.blockZ + "/" + placeSide + " to "
