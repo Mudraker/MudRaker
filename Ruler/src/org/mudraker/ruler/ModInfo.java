@@ -17,9 +17,10 @@ public class ModInfo {
 	public static final String VERSION = "0.0.0";
 
 	// DO NOT PUT A LEADING SLASH ON THE PATH!!!
-	public static final String GUI_PATH = "textures/gui/";
+	public static final String GUI_PATH    = "textures/gui/";	
+	public static final String ENTITY_PATH = "textures/entity/";
 
 	// BlockPlacer does not use proxies.
-	// public static final String CLIENT_PROXY = PKG + ".ClientProxy";
-	// public static final String COMMON_PROXY = PKG + ".CommonProxy";
+	public static final String CLIENT_PROXY = PKG + ".ProxyClient";
+	public static final String COMMON_PROXY = PKG + ".ProxyCommon";
 }

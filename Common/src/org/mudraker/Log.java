@@ -3,9 +3,9 @@ package org.mudraker;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.minecraft.client.Minecraft;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.relauncher.Side;
 
 /** 
  * MudRaker Logging functions.
@@ -136,16 +136,10 @@ public class Log {
 	 */
 	private static String getSide() {
 		String side;
-		Minecraft mc = Minecraft.getMinecraft();
-		
-		if (mc == null || mc.theWorld == null) {
-			try {
-				side = (FMLCommonHandler.instance().getSide().isClient() ? "Client: " : "Server: ");
-			} catch (Exception e) {
-				side = "UnknownSide: ";
-			}
-		} else {
-			side = (mc.theWorld.isRemote ? "Client: " : "Server: ");
+		try {
+			side = (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER ? "Server: " : "Client: ");
+		} catch (Exception e) {
+			side = "UnknownSide: ";
 		}
 		return side;
 	}
