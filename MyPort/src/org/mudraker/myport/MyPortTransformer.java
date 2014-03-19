@@ -24,7 +24,7 @@ public class MyPortTransformer implements IClassTransformer {
 	public byte[] transform(String className, String transformedName, byte[] bytes) {
 		// Check if the JVM is about to process the class we want to be replace
 		if (className.equals("lh") || className.equals("net.minecraft.util.HttpUtil")) {
-			System.out.println("********* INSIDE MYPORT: " + className);
+			//System.out.println("********* INSIDE MYPORT: " + className);
 			System.out.println("*** Found class "+className+", size "+bytes.length+", preparing to replace...");
 			bytes = patchClassFromJar(className, bytes, MyPortPlugin.location);
 		}

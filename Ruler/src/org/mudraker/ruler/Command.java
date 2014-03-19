@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.command.ICommandSender;
 
 import org.mudraker.ClientCommandMain;
+import org.mudraker.Log;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -43,7 +44,7 @@ public class Command extends ClientCommandMain {
 	 */
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void processCommand(ICommandSender sender, String[] aString) {
+	public void processClientCommand(ICommandSender sender, String[] aString) {
 		super.processCommand (sender, aString);
 	}
 	
