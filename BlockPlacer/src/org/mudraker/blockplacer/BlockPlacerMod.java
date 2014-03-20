@@ -9,7 +9,6 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkMod;
 
 /**
  * BlockPlacer mod base class.
@@ -19,10 +18,11 @@ import cpw.mods.fml.common.network.NetworkMod;
  *
  * <p>Pattern: Forge proxyless mod.</p>
  * 
+ * <p>1.7.2 update - no network mod annotation</p?\>
+ * 
  * @author MudRaker
  */
 @Mod(modid = ModInfo.ID, name = ModInfo.LONG_NAME, version = ModInfo.VERSION)
-@NetworkMod(clientSideRequired = false, serverSideRequired = false)
 public class BlockPlacerMod {
 
 	// **************************************

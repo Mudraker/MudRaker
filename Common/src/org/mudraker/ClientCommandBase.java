@@ -11,7 +11,9 @@ import net.minecraft.command.PlayerNotFoundException;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntityCommandBlock;
-import net.minecraft.util.ChatMessageComponent;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.client.ClientCommandHandler;
 
 /**
@@ -21,6 +23,8 @@ import net.minecraftforge.client.ClientCommandHandler;
  * &ltmodPrefix&gt.cmd.&ltcommandName&gt.usage - top level usage for the command
  * &ltmodPrefix&gt.msg.main.player - exception if sender is not a player
  * <p>Pattern: Abstract Command Handler</p>
+ * 
+ * <p>1.7.2 Update for changes to chat handling</p>
  * 
  * @author MudRaker
  */
@@ -105,10 +109,11 @@ public abstract class ClientCommandBase implements ICommand {
 		try {
 			this.processClientCommand (sender, aString);
 		} catch (WrongUsageException wue) {
-            sender.sendChatToPlayer(format("commands.generic.usage", format(wue.getMessage(), wue.getErrorOjbects())).setColor(RED));
+            sender.addChatMessage(format(RED, "commands.generic.usage", format(RED, wue.getMessage(), wue.getErrorOjbects())));
         } catch (CommandException ce) {
-            sender.sendChatToPlayer(format(ce.getMessage(), ce.getErrorOjbects()).setColor(RED));
-        } 
+            sender.addChatMessage(format(RED, ce.getMessage(), ce.getErrorOjbects()));
+        }
+		
 	}
 	
 	/**
@@ -229,15 +234,17 @@ public abstract class ClientCommandBase implements ICommand {
 	protected void outputMsg (ICommandSender sender, String msg) { 
 		if (msg != null && !msg.isEmpty()) {
 			if (sender instanceof EntityPlayer) {
-				((EntityPlayer) sender).addChatMessage(msg);
+				((EntityPlayer) sender).addChatMessage(new ChatComponentText(msg));
 			}
 			Log.info(msg);
 		}
 	}
 	
-    // Couple of helpers because the mcp names are stupid and long... 
-    private ChatMessageComponent format(String str, Object... args)
+    //Couple of helpers because the mcp names are stupid and long...
+    private ChatComponentTranslation format(EnumChatFormatting color, String str, Object... args)
     {
-        return ChatMessageComponent.createFromTranslationWithSubstitutions(str, args);
+        ChatComponentTranslation ret = new ChatComponentTranslation(str, args);
+        ret.getChatStyle().setColor(color);
+        return ret;
     }
 }

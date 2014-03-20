@@ -7,10 +7,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import net.minecraft.block.Block;
 import net.minecraft.item.Item;
-import net.minecraftforge.common.Configuration;
-import net.minecraftforge.common.Property;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 
 /** 
  * MudRaker Mod Configuration manager
@@ -27,6 +26,7 @@ import net.minecraftforge.common.Property;
  * 
  * <p>Note that the configuration is automatically saved if changed during any load or reload.</p>
  * 
+ * <p>Update for 1.7.2 - remove item and block support</p>
  * @author MudRaker
  */
 public abstract class ConfigBase {
@@ -382,14 +382,6 @@ public abstract class ConfigBase {
 					// FIRST TIME ONLY
 					if (annotation.loadOnly() && !firstTime) {
 						Log.fine("Config: Skip load only field " + name);
-					// ITEM
-					} else if (annotation.value() == Item.class) {
-						p = cfg.getItem (name, field.getInt(this), Lang.getFieldComment(modPrefix, name));
-						if (!setIntFromProperty(name, annotation, field, p)) p.set(field.getInt(this));
-					// BLOCK
-					} else if (annotation.value() == Block.class) {
-						p = cfg.getBlock (name, field.getInt(this), Lang.getFieldComment(modPrefix, name));
-						if (!setIntFromProperty(name, annotation, field, p)) p.set(field.getInt(this));
 					// BOOLEAN
 					} else if (annotation.value() == boolean.class) {
 						p = cfg.get(annotation.cat(), name, field.getBoolean(this), Lang.getFieldComment(modPrefix, name));

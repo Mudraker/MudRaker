@@ -1,11 +1,15 @@
 package org.mudraker.blockplacer;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Facing;
 import net.minecraft.util.MathHelper;
@@ -24,6 +28,8 @@ import cpw.mods.fml.relauncher.SideOnly;
  * as a client only static class.</P>
  * 
  * <p>Pattern: Static Mutable.</p>
+ * 
+ * <p>1.7.2 update - fix chat message syntax change.
  * 
  * @author MudRaker
  */
@@ -77,7 +83,7 @@ public class BlockPlacer {
 		if (!playerWelcomed) {
 			Minecraft mc = Minecraft.getMinecraft();
 			if (mc != null && mc.thePlayer != null) {
-				mc.thePlayer.addChatMessage(ModInfo.LONG_NAME + " Version: " + ModInfo.VERSION);
+				mc.thePlayer.addChatMessage(new ChatComponentText(ModInfo.LONG_NAME + " Version: " + ModInfo.VERSION));
 				playerWelcomed = true;
 			}
 		}
@@ -449,8 +455,8 @@ public class BlockPlacer {
 	}
 	
 	/** A constant dirt itemstack for use as a default if needed when checking if can place. */  
-	private static final ItemBlock DIRT = (ItemBlock) Item.itemsList[Block.dirt.blockID]; // local constant
-			
+	private static final ItemBlock DIRT = (ItemBlock) Item.itemRegistry.getObject("dirt"); // local constant
+	
 	/**
 	 * Worker to check if it is legal to place a block on the given side of the current place
 	 * location. Used for testing alternate placement sides to see if they are valid.
@@ -463,19 +469,25 @@ public class BlockPlacer {
 		ItemStack itemStack = entityPlayer.getHeldItem();
 		ItemBlock itemBlock = ((itemStack != null && itemStack.getItem() instanceof ItemBlock) 
 				? (ItemBlock) itemStack.getItem() : DIRT);
-		boolean valid = itemBlock.canPlaceItemBlockOnSide(theWorld, placePosition.x,
+		boolean valid = itemBlockDOTcanPlaceItemBlockOnSide(itemBlock, theWorld, placePosition.x,
 				placePosition.y, placePosition.z, side, entityPlayer, itemStack);
 		//Log.finer("canPlaceOnThisSide " + placePosition + " @ side " + side + " --> " + valid);
 		return valid;
 	}
 
+	/** 1.7.2 function rename */
+	private static boolean itemBlockDOTcanPlaceItemBlockOnSide (ItemBlock itemBlock, World world, int x, int y, 
+			int z, int side, EntityPlayer entityPlayer, ItemStack itemStack) {
+		return itemBlock.func_150936_a(world, x, y, z, side, entityPlayer, itemStack);
+	}
+	
 	/**
 	 * Check that the current place position itself is a valid block.
 	 * @param theWorld is the current world
 	 * @return true if the place position contains a block to place against
 	 */
 	private static boolean isCurrentPlaceValid (World theWorld) {
-		return (theWorld.getBlockId (placePosition.x, placePosition.y, placePosition.z) != 0);
+		return (theWorld.getBlock (placePosition.x, placePosition.y, placePosition.z).getMaterial() != Material.air);
 	}
 	
 	/**
@@ -530,8 +542,9 @@ public class BlockPlacer {
 		
 		// Warn the user we are resetting by playing an unusual sound.
 		if (config.placeResetSound) {
-			mc.sndManager.playSound("note.bass", (float)placePosition.x + 0.5F, 
-	        		(float)placePosition.y + 0.5F, (float)placePosition.z + 0.5F, 10.0F, 1.0F);
+	        mc.theWorld.playSoundEffect((double)placePosition.x + 0.5F, (double)placePosition.y + 0.5F,
+	        		(double)placePosition.z + 0.5F, "note.bassattack", 10.0F, 1.0F);	        		
+			
 		}
 		
 		// Mark place position to be re-initialised.
