@@ -239,8 +239,10 @@ public class BlockPlacer {
 				placeReset(mc);
 				return false;
 			} else {
-				Log.fine("Rightclick success so swing item");
-				placeComplete();
+				if (didItPlaceABlock(mc.theWorld)) {
+					Log.finer("Block actually placed, so determine the next step");
+					placeComplete();
+				}
 				entityPlayer.swingItem();
 				return true;
 			}
@@ -426,12 +428,15 @@ public class BlockPlacer {
 	        double reach = (double)mc.playerController.getBlockReachDistance();
 	        MovingObjectPosition mop = mc.renderViewEntity.rayTrace(reach, 1.0F);
 	        
-	        if (mouseShifted(mop)) {
+	        if (mop != null && mouseShifted(mop)) {
 				Log.fine("Placed block is in the mouse line, mark as standard");
 	        	placeMop = mop;
 	        }
 	
-			if (config.placeAutoRpt) {
+			if (mop == null) {
+				Log.fine("Nothing in reach now - was it a door??");
+				placeReinit = true;
+			} else if (config.placeAutoRpt) {
 				Coordinate newC = placePosition.adjacentOnSide(placeSide);
 				Log.fine("Place mode auto-repeat from " + placePosition + " to " + newC
 						+ " side " + placeSide);
@@ -476,6 +481,16 @@ public class BlockPlacer {
 	 */
 	private static boolean isCurrentPlaceValid (World theWorld) {
 		return (theWorld.getBlockId (placePosition.x, placePosition.y, placePosition.z) != 0);
+	}
+	
+	/**
+	 * Check if a block actually placed when the player right clicked or did the block just activate?
+	 * @param theWorld is the current world
+	 * @return true if there is a block on the place side of the place position
+	 */
+	private static boolean didItPlaceABlock (World theWorld) {
+		Coordinate newC = placePosition.adjacentOnSide(placeSide);
+		return (theWorld.getBlockId (newC.x, newC.y, newC.z) != 0);
 	}
 	
 	/**
