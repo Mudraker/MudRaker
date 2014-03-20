@@ -4,12 +4,13 @@
 [*]Stand back from that lava!
 [*]Build down where no Steve has built before
 [/list]
+[center][img]http://static.minecraftforum.net//public/style_emoticons/default/fire.png[/img][color=#ff0000]News[img]http://static.minecraftforum.net//public/style_emoticons/default/fire.png[/img] v1.0.1 patch released[/color][/center]
 
 [center][IMG]http://i.imgur.com/yNXouia.png[/IMG][/center]
 
 If you've ever found yourself arriving in the nether here like I did, with a lake of lava below and 2 ghasts circling above, you'll understand why I made this mod. With BlockPlacer, you have control over where blocks are placed - if you can reach any side of a block, you can choose to place on a different side. Perfect for building down from a floating island, or outwards, or upwards while staying under cover from those pesky ghasts. Or, like Wreckage, for getting into those hard to reach places without breaking everything.
 
-[IMG]http://i.imgur.com/yCvsgpy.png[/IMG]
+[center][IMG]http://i.imgur.com/yCvsgpy.png[/IMG][/center]
 
 Features[list]
 [*]Client side only - use anywhere
@@ -24,8 +25,7 @@ Features[list]
 [*]Check out the config file for full documentation
 [*]Find the secret client side command and you can change config on the fly (just don't try /mrbp, whatever you do)
 [/list]
-It's not cheating (much). You can only place blocks where you can reach and all the normal rules apply. You could do it the standard minecraft way if you just got in the right spot(*).
-* I take no responsibility for any deaths from swimming in lava, walking on air, falling to your death or being hacked to bits trying to get to the right spot!
+It's not cheating (much). You can only place blocks where you can reach and all the normal rules apply. You could do it the standard minecraft way if you just got in the right spot(*). [size=2]* I take no responsibility for any deaths from swimming in lava, walking on air, falling to your death or being hacked to bits trying to get to the right spot![/size]
 
 [spoiler=Mod Screenshots]
 A Reminder icon displays when BlockPlacer is active, and shows what direction the block will be placed ...
@@ -46,17 +46,20 @@ My first showcase, thanks to JANKYnik
 [media]http://www.youtube.com/watch?feature=player_embedded&v=oQEGyQgWZZM[/media]
 [/spoiler]
 
-[spoiler='Downloads']Downloads ...[list]
+[spoiler='Downloads']V1.0.1[list]
 [*]Forge 1.7.2 is work in progress
-[*][url="http://adf.ly/gSmCm"]Forge 1.6.4[/url] (adfly)
+[*][url="http://adf.ly/gkaA5"]Forge 1.6.4[/url] (adfly)
 [*]I will package for 1.6.2 if anyone wants it.
 [/list]
+[spoiler='Change Log']V1.0.1
+Fix null pointer crash when open door & no block in range behind it.
+Fix handling of blocks that activate to avoid resets & beeps
+[/spoiler]
 [/spoiler]
 
 [spoiler='Installation'][color=#006400]It's forge!! Put it in the mod folder.[/color][/spoiler]
 
-[spoiler='Configure Everything']
-BlockPlacer is designed to be flexible, so you can configure just about anything.
+[spoiler='Configure Everything']BlockPlacer is designed to be flexible, so you can configure just about anything.
 Run it once and it generates a standard configuration file that tells you everything you can change, what it does and what the valid values are!
 
 [spoiler='Default Config: Mudraker.Blockplacer.cfg'][CODE]
@@ -214,10 +217,22 @@ general {
     S:logLevelOverride=
 }
 [/CODE][/spoiler]
+
 [color=#800080]And I hid this in the Forge config directory coz I know that's the last place you'll look![/color]
 [/spoiler]
 
 [spoiler='Modpacks: Free to a good home']Wanna put this in your mod pack?
-As long as you're not charging money - go right ahead.
-I'd appreciate a credit & please post a link below so I can have a play :)
+It's GPLv3 Open Source, so as long as you're not charging money - go right ahead.
+I'd appreciate a mention in the credits & please post a link to the modpack below so I can have a play too :)
+[/spoiler]
+
+[spoiler='Open Source GPLv3']MudRaker mods are open source under a GPLv3 license.
+[url="https://github.com/Mudraker/MudRaker"]Source available on GitHub[/url]
+[url="https://github.com/Mudraker/MudRaker/issues"]Issue Tracker here[/url]
+[url="https://github.com/Mudraker/MudRaker/pulls"]Pull requests here if you've got some good additions or can make it leaner[/url]
+[/spoiler]
+
+[spoiler='Crashes or Problems?']Post a message here or log it on the [url="https://github.com/Mudraker/MudRaker/issues"]Issue Tracker here[/url].
+Attach a stackdump for crashes & the forge log files.
+If you can reproduce, let me know how and get me detailed traces by issuing the command "/mrbp log all" first.
 [/spoiler]
