@@ -1,3 +1,10 @@
+/**
+ * Copyright (C) 2014  MudRaker
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ */
 package org.mudraker.blockplacer;
 
 import net.minecraft.block.Block;
@@ -245,8 +252,10 @@ public class BlockPlacer {
 				placeReset(mc);
 				return false;
 			} else {
-				Log.fine("Rightclick success so swing item");
-				placeComplete();
+				if (didItPlaceABlock(mc.theWorld)) {
+					Log.fine("Block actually placed, so determine the next step");
+					placeComplete();
+				}
 				entityPlayer.swingItem();
 				return true;
 			}
@@ -432,12 +441,15 @@ public class BlockPlacer {
 	        double reach = (double)mc.playerController.getBlockReachDistance();
 	        MovingObjectPosition mop = mc.renderViewEntity.rayTrace(reach, 1.0F);
 	        
-	        if (mouseShifted(mop)) {
+	        if (mop != null && mouseShifted(mop)) {
 				Log.fine("Placed block is in the mouse line, mark as standard");
 	        	placeMop = mop;
 	        }
 	
-			if (config.placeAutoRpt) {
+			if (mop == null) {
+				Log.fine("Nothing in reach now - was it a door??");
+				placeReinit = true;
+			} else if (config.placeAutoRpt) {
 				Coordinate newC = placePosition.adjacentOnSide(placeSide);
 				Log.fine("Place mode auto-repeat from " + placePosition + " to " + newC
 						+ " side " + placeSide);
@@ -488,6 +500,16 @@ public class BlockPlacer {
 	 */
 	private static boolean isCurrentPlaceValid (World theWorld) {
 		return (theWorld.getBlock (placePosition.x, placePosition.y, placePosition.z).getMaterial() != Material.air);
+	}
+	
+	/**
+	 * Check if a block actually placed when the player right clicked or did the block just activate?
+	 * @param theWorld is the current world
+	 * @return true if there is a block on the place side of the place position
+	 */
+	private static boolean didItPlaceABlock (World theWorld) {
+		Coordinate newC = placePosition.adjacentOnSide(placeSide);
+		return (theWorld.getBlockId (newC.x, newC.y, newC.z) != 0);
 	}
 	
 	/**
