@@ -23,6 +23,7 @@ mudraker.blockplacer.cmd.main.set.fieldvalue.usage=%s set: Invalid value (%s) fo
 mudraker.blockplacer.msg.reload.keybind=%s key bindings reloaded!
 
 # Key binding names
+mudraker.blockplacer.key.category.main=BlockPlacer
 mudraker.blockplacer.key.rotvc.name=Rotate Vertical Clockwise
 mudraker.blockplacer.key.rotva.name=Rotate Vertical AntiClockwise
 mudraker.blockplacer.key.rothc.name=Rotate Horizontal Clockwise

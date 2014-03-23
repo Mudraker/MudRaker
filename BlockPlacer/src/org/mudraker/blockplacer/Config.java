@@ -9,11 +9,11 @@ package org.mudraker.blockplacer;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.logging.Level;
 
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.common.Property;
+import net.minecraftforge.common.config.Property;
 
+import org.apache.logging.log4j.Level;
 import org.mudraker.ConfigBase;
 import org.mudraker.Lang;
 import org.mudraker.Log;
@@ -24,6 +24,8 @@ import org.mudraker.Util;
  * <p> Loads and holds the module wide configuration for the BlockPlacer mod</p> 
  * 
  * <p>Pattern: Enforced Singleton Mutable</p>
+ * 
+ * <p>1.7.2 Config class changes & chat messages</p>
  * 
  * @extends ConfigManager
  * @author MudRaker
@@ -269,7 +271,7 @@ public class Config extends ConfigBase {
 		if (KeyBind.reInit(placeControlMode)) {
 			Minecraft mc = Minecraft.getMinecraft();
 			if (mc.thePlayer != null) 
-				mc.thePlayer.addChatMessage(Lang.getMsgParams(ModInfo.ID, "reload.keybind", ModInfo.SHORT_NAME));
+				Util.addChat(mc.thePlayer, Lang.getMsgParams(ModInfo.ID, "reload.keybind", ModInfo.SHORT_NAME));
 		}
 	}
 
@@ -295,7 +297,7 @@ public class Config extends ConfigBase {
 			if (KeyBind.reInit(placeControlMode)) {
 				Minecraft mc = Minecraft.getMinecraft();
 				if (mc.thePlayer != null) 
-					mc.thePlayer.addChatMessage(Lang.getMsgParams(ModInfo.ID, "reload.keybind", ModInfo.SHORT_NAME));
+					Util.addChat(mc.thePlayer, Lang.getMsgParams(ModInfo.ID, "reload.keybind", ModInfo.SHORT_NAME));
 			}
 		}
 		return b;
@@ -317,12 +319,10 @@ public class Config extends ConfigBase {
 		Level newLevel;
 		logLevelOverride = p.getString();
 		if (!logLevelOverride.isEmpty()) {
-			try {
-				newLevel = Level.parse(logLevelOverride.trim().toUpperCase());
-				Log.setLevel(newLevel);
+			if (Log.setLevel(logLevelOverride)) {
 				Log.fine("Config: LogLevel override to "+logLevelOverride);
 				return true;
-	        } catch(IllegalArgumentException e) {
+			} else {
 				Log.fine("Config: LogLevel override "+logLevelOverride+" invalid - rewrite config as empty");
 	        	p.set(logLevelOverride = "");
 	        	return false;

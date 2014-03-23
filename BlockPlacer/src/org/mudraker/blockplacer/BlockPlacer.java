@@ -10,6 +10,7 @@ package org.mudraker.blockplacer;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -21,6 +22,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Facing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import org.mudraker.Log;
@@ -36,7 +38,7 @@ import cpw.mods.fml.relauncher.SideOnly;
  * 
  * <p>Pattern: Static Mutable.</p>
  * 
- * <p>1.7.2 update - fix chat message syntax change.
+ * <p>1.7.2 update - fix chat message syntax change, no block ids & sound handling.
  * 
  * @author MudRaker
  */
@@ -509,7 +511,7 @@ public class BlockPlacer {
 	 */
 	private static boolean didItPlaceABlock (World theWorld) {
 		Coordinate newC = placePosition.adjacentOnSide(placeSide);
-		return (theWorld.getBlockId (newC.x, newC.y, newC.z) != 0);
+		return (theWorld.getBlock (newC.x, newC.y, newC.z).getMaterial() != Material.air);
 	}
 	
 	/**
@@ -564,9 +566,10 @@ public class BlockPlacer {
 		
 		// Warn the user we are resetting by playing an unusual sound.
 		if (config.placeResetSound) {
-	        mc.theWorld.playSoundEffect((double)placePosition.x + 0.5F, (double)placePosition.y + 0.5F,
-	        		(double)placePosition.z + 0.5F, "note.bassattack", 10.0F, 1.0F);	        		
-			
+			ResourceLocation res = new ResourceLocation("note.bassattack");
+	        PositionedSoundRecord psr = new PositionedSoundRecord(res, 10.0F, 1.0F, 
+	        		(float)placePosition.x + 0.5F, (float)placePosition.y + 0.5F, (float)placePosition.z + 0.5F);
+            mc.getSoundHandler().playSound(psr);
 		}
 		
 		// Mark place position to be re-initialised.

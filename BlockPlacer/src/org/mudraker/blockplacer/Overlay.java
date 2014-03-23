@@ -14,12 +14,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.event.EventPriority;
-import net.minecraftforge.event.ForgeSubscribe;
 
 import org.lwjgl.opengl.GL11;
 import org.mudraker.Util;
 
+import cpw.mods.fml.common.eventhandler.EventPriority;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -60,7 +60,7 @@ public class Overlay extends Gui {
 	 * @param event is the details of the mouse event
 	 */
 	@SideOnly(Side.CLIENT)
-	@ForgeSubscribe(priority = EventPriority.NORMAL)
+	@SubscribeEvent(priority = EventPriority.NORMAL)
 	public void onMouseEvent(MouseEvent event) {
 		// Get out quick if not placing and using Mouse
 		if (BlockPlacer.isPlaceEnabled() && Config.getInstance().placeControlMode == Config.ControlMode.MOUSE) {
@@ -78,7 +78,7 @@ public class Overlay extends Gui {
 	 * This event is called by GuiIngameForge during each frame by pre() and post()</p>
 	 * @param event details provided by Forge used to identify POST(ALL) phase.
 	 */
-	@ForgeSubscribe(priority = EventPriority.NORMAL)
+	@SubscribeEvent(priority = EventPriority.NORMAL)
 	public void onRenderOverlay(RenderGameOverlayEvent event) {
 		Config config = Config.getInstance();
 

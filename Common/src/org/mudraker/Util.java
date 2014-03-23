@@ -10,6 +10,9 @@ package org.mudraker;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ChatComponentText;
+
 /** 
  * MudRaker Utility functions.
  * <p>Contains various helper functions for strings, enums, math and colours.</p>
@@ -277,5 +280,14 @@ public class Util {
             }
         }
         return result;
+    }
+    
+    /**
+     * Send pre-formatted chat message to the player
+     * @param entityPlayer is the player to send to
+     * @param msg is the preformatted message
+     */
+    public static void addChat(EntityPlayer entityPlayer, String msg) {
+    	entityPlayer.addChatMessage(new ChatComponentText(msg));    	
     }
 }

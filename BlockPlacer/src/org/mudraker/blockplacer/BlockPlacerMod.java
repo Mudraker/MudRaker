@@ -11,6 +11,7 @@ import net.minecraftforge.common.MinecraftForge;
 
 import org.mudraker.Log;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -25,7 +26,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
  *
  * <p>Pattern: Forge proxyless mod.</p>
  * 
- * <p>1.7.2 update - no network mod annotation</p?\>
+ * <p>1.7.2 no network mod annotation & register keybind for events</p>
  * 
  * @author MudRaker
  */
@@ -54,21 +55,25 @@ public class BlockPlacerMod {
 		config.loadConfig(event.getSuggestedConfigurationFile());
 		config.dumpConfig();
 		
-		// Key handler Initialisation
+		// Key handler Initialisation - register with FML not FORGE
 		KeyBind.init(config.placeControlMode);
+		FMLCommonHandler.instance().bus().register(KeyBind.getInstance());
 		
 		// Command initialisation
 		Command.getInstance();
+		
+		// Event handler registration
+		MinecraftForge.EVENT_BUS.register(Event.getInstance());
+		MinecraftForge.EVENT_BUS.register(Overlay.getInstance());
 	}
 
 	/**
 	 * Forge post-initialisation
 	 * <p>Registers event handlers
 	 * @param event is the Forge event details
-	 */@EventHandler
+	 */
+	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
-		// Event handler registration
-		MinecraftForge.EVENT_BUS.register(Event.getInstance());
-		MinecraftForge.EVENT_BUS.register(Overlay.getInstance());
+
 	}
 }

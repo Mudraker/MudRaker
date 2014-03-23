@@ -14,6 +14,8 @@ import net.minecraft.client.resources.I18n;
  * <p>Contains various helper functions for Language file retrieval.</p>
  * 
  * <p>Pattern: Enforced Static Immutable</p>
+ * 
+ * <p>1.7.2 Added compatibility methods. New key category translation</p> 
  *  
  * @author MudRaker
  */
@@ -48,6 +50,16 @@ public class Lang extends I18n {
 	 */
 	public static String getKeyName (String mod, String keyName) {
 		return getString(mod.toLowerCase()+".key."+keyName+".name");
+	}
+	
+	/**
+	 * Retrieve a key category name suitable for later language lookup.
+	 * @param mod is the mod prefix
+	 * @param categoryName is the key category name
+	 * @return is the key category description without tranlsation.
+	 */
+	public static String getKeyCategory (String mod, String categoryName) {
+		return mod.toLowerCase()+".key.category."+categoryName;
 	}
 	
 	/**
