@@ -5,13 +5,12 @@ import java.util.List;
 import net.minecraft.command.ICommandSender;
 
 import org.mudraker.ClientCommandMain;
-import org.mudraker.Log;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 /**
- * BlockPlacer Command Handler
+ * Ruler Command Handler
  * <p>Provides /mrrl command for debugging purposes></p>
  * <p>Pattern: Singleton Registered Handler</p>
  * 

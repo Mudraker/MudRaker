@@ -10,7 +10,7 @@ import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 
-public class SlotModel extends ModelBase
+public class RulerMarkerModel extends ModelBase
 {
   //fields
     ModelRenderer Base;
@@ -18,7 +18,7 @@ public class SlotModel extends ModelBase
     ModelRenderer Cap;
     ModelRenderer Flag;
   
-  public SlotModel()
+  public RulerMarkerModel()
   {
 	  textureWidth = 64;
 	  textureHeight = 32;

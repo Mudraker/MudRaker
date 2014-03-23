@@ -69,7 +69,7 @@ public class Overlay extends Gui {
 		}
 
 		// Check if holding ruler
-		Minecraft mc = Minecraft.getMinecraft();
+		Minecraft mc = Minecraft.getMinecraft(); // client-safe
 		EntityPlayer entityPlayer = mc.thePlayer;
 		ItemStack heldItem = entityPlayer.getHeldItem();
 		if (heldItem != null && (heldItem.getItem() instanceof RulerItem)) {
@@ -93,9 +93,9 @@ public class Overlay extends Gui {
 			mc.renderEngine.bindTexture(ICON);
 			this.drawTexturedModalRect(xPos, yPos, 0, ICON_OFFSET, ICON_SIZE, ICON_SIZE);
 			
-			NBTTagCompound ruler = RulerItem.getRuler(heldItem);
-			int [] slot = RulerItem.getActiveSlot(ruler);
-			if (slot != null && slot.length > 0) {
+			NBTTagCompound ruler = RulerItem.getRuler(mc.theWorld, heldItem);
+			int [] measure = RulerItem.getActiveMeasure(ruler);
+			if (measure != null && measure.length > 0) {
 				int n = 0;
 				
 				// Setup base text position
@@ -108,9 +108,9 @@ public class Overlay extends Gui {
 				}
 				
 				// Draw coordinate
-				for (int i = 1; i <= slot[0]; i +=3) { 
+				for (int i = 1; i <= measure[0]; i +=3) { 
 					// Get the string to draw
-					String drawString = String.format("%d(%d,%d,%d)", ++n, slot[i], slot[i+1], slot[i+2]);
+					String drawString = String.format("%d(%d,%d,%d)", ++n, measure[i], measure[i+1], measure[i+2]);
 	
 					// Figure out where to draw text
 					int stringWidth = MathHelper.ceiling_float_int(mc.fontRenderer.getStringWidth(drawString) * config.textScaling);
