@@ -13,6 +13,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.LanguageRegistry;
 
 /**
  * Ruler mod base class.
@@ -71,14 +72,17 @@ Log.setMinInfo(true); // TODO: remove
 		 Config config = Config.getInstance();
 		 
 		 // Register items
-		 GameRegistry.registerItem(new RulerItem(config.rulerItemId), "Ruler");
+		 RulerItem rulerItem;
+		 GameRegistry.registerItem(rulerItem = new RulerItem(config.rulerItemId), "Ruler");
 		 
 		// Event handler registration
-		//MinecraftForge.EVENT_BUS.register(Event.getInstance());
 		MinecraftForge.EVENT_BUS.register(Overlay.getInstance());
+		MinecraftForge.EVENT_BUS.register(rulerItem);
 		
 		// Register entities
-		EntityRegistry.registerModEntity(EntitySlot.class, "RulerSlot", 1, this, 32, 1, false);
+		EntityRegistry.registerGlobalEntityID(EntityRulerMarker.class, "ruler.marker", EntityRegistry.findGlobalUniqueEntityId());
+		EntityRegistry.registerModEntity(EntityRulerMarker.class, "ruler.marker", 1, this, 64, 1, false);
+		LanguageRegistry.instance().addStringLocalization("entity.mudraker.ruler.ruler.marker.name", "Ruler Marker");
 		proxy.registerRendering();
 	}
 }
