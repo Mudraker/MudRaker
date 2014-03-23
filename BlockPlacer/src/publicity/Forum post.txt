@@ -1,0 +1,223 @@
+[center][img]http://i.imgur.com/EHrZg9Z.png[/img] [size=8][font=arial,helvetica,sans-serif][sup]by MudRaker[/sup][/font][/size][/center]
+[size=4][font=verdana,geneva,sans-serif]A powerful utility mod that gives you control over which [b]side of the target[/b] the block is placed against.Designed to be small, low footprint and unobtrusive until you need it.[/font][/size][list]
+[*]Never again fall off with a shift-fail when placing blocks
+[*]Stand back from that lava!
+[*]Build down where no Steve has built before
+[/list]
+
+[center][IMG]http://i.imgur.com/yNXouia.png[/IMG][/center]
+
+If you've ever found yourself arriving in the nether here like I did, with a lake of lava below and 2 ghasts circling above, you'll understand why I made this mod. With BlockPlacer, you have control over where blocks are placed - if you can reach any side of a block, you can choose to place on a different side. Perfect for building down from a floating island, or outwards, or upwards while staying under cover from those pesky ghasts. Or, like Wreckage, for getting into those hard to reach places without breaking everything.
+
+[IMG]http://i.imgur.com/yCvsgpy.png[/IMG]
+
+Features[list]
+[*]Client side only - use anywhere
+[*]A wireframe shows where the block will be placed
+[*]Choose your method to control the block position - use one key, two keys, the mouse or the arrow keys
+[*]AutoOff mode to turn off BlockPlacer whenever you move the cursor off the block
+[*]AutoRepeat mode so you can just keep clicking to place more blocks in the same direction
+[*]SmartStart mode to intelligently(*) select the exact spot you want to put the block OR turn it off to default to the boring minecraft standard [size=2]* for low levels of intelligence[/size]
+[*]Nether mode automatically swaps the red and green colours of the wireframe for high contrast
+[*]Uses standard minecraft key bindings that you can change on the fly
+[*]Configure the UI - size, location and colours all up for grabs
+[*]Check out the config file for full documentation
+[*]Find the secret client side command and you can change config on the fly (just don't try /mrbp, whatever you do)
+[/list]
+It's not cheating (much). You can only place blocks where you can reach and all the normal rules apply. You could do it the standard minecraft way if you just got in the right spot(*).
+* I take no responsibility for any deaths from swimming in lava, walking on air, falling to your death or being hacked to bits trying to get to the right spot!
+
+[spoiler=Mod Screenshots]
+A Reminder icon displays when BlockPlacer is active, and shows what direction the block will be placed ...
+[IMG]http://i.imgur.com/fKPqliW.png[/IMG]
+When you are holding a block that can be placed, a wireframe appears to show where the block will be placed...
+[IMG]http://i.imgur.com/FDYFDG0.png[/IMG]
+With AutoRepeat mode you can just keep clicking to keep placing blocks in the same direction - as far as you can reach ...
+[IMG]http://i.imgur.com/C4jJDfs.png[/IMG]
+But if you'd prefer to change direction, just change it and keep going ...
+[IMG]http://i.imgur.com/aS4iQ5H.png[/IMG]
+The SmartStart option automatically tries to pick the side you want to place on based on where you are standing and the side of the block that you select.
+Perfect for building up, down or outward ...
+[IMG]http://i.imgur.com/h6l4Cgt.png[/IMG]
+[/spoiler]
+
+[spoiler=Mod Videos]
+My first showcase, thanks to JANKYnik
+[media]http://www.youtube.com/watch?feature=player_embedded&v=oQEGyQgWZZM[/media]
+[/spoiler]
+
+[spoiler='Downloads']Downloads ...[list]
+[*]Forge 1.7.2 is work in progress
+[*][url="http://adf.ly/gSmCm"]Forge 1.6.4[/url] (adfly)
+[*]I will package for 1.6.2 if anyone wants it.
+[/list]
+[/spoiler]
+
+[spoiler='Installation'][color=#006400]It's forge!! Put it in the mod folder.[/color][/spoiler]
+
+[spoiler='Configure Everything']
+BlockPlacer is designed to be flexible, so you can configure just about anything.
+Run it once and it generates a standard configuration file that tells you everything you can change, what it does and what the valid values are!
+
+[spoiler='Default Config: Mudraker.Blockplacer.cfg'][CODE]
+# Configuration file
+
+####################
+# blockplacer controls
+#===================
+# Defines BlockPlacer Controls to activate BlockPlacer mode to show the placement wireframe (but only if you are
+# holding a placeable block and are not pressing 'Attack') and to select between the different sides of the block
+# where a new block can be placed. Any side where a block cannot be placed is automatically skipped.
+# Note that the actual key definitions are defined in the standard Minecraft key configuration menus.
+# ControlMode determines the number and function of keys used to control the placement location.
+# Other options set BlockPlacer to automatically turn off after placing, to allow repeating placements, or to
+# try to 'intelligently' determine the likely side you want to place on.
+####################
+
+"blockplacer controls" {
+    # Minimum movement threshold for the mouse to trigger a change in the placement location when the control
+    # mode is MOUSE. If the sum of movement on both axes within 1 tick is less than this, it is ignored. (0-15)
+    I:mouseThreshold=4
+
+    # Defines the size of small 'wobble' mouse movements that are ignored when the control mode is MOUSE.
+    # If the shift on a mouse axis is this or less, it is treated as not moving on that axis. (0-10)
+    I:mouseWobble=1
+
+    # BlockPlacer mode is automatically Ended instead of just Reset when there are
+    # no more sides of the original block to place on (if AutoRpt is off)
+    # or the placing has repeated to the extreme of the player reach (if AutoRpt is on).
+    # Note: Only relevant when placeAutoOff is not enabled.
+    B:placeAutoEnd=false
+
+    # BlockPlacer mode is automatically turned off when the cursor is moved to a different block.
+    # Also applies after a block is successfully placed unless AutoRepeat mode is enabled.
+    # This mode is forced ON by SINGLEKEY and FORWARDBACK control modes.
+    B:placeAutoOff=false
+
+    # After placing a block, AutoRepeat mode causes BlockPlacer to automatically set the default place location
+    # to be the same side of the block just placed. This allows a row or column of blocks to be placed without having
+    # to move the cursor. Note that it is still limited by player reach.
+    B:placeAutoRpt=true
+
+    # Control mode determines the number and function of keys used to activate & control the placement location,
+    # or enables small mouse movements to control the placement side instead
+    # 
+    # Key functions supported are:
+    #   Toggle  - toggle BlockPlacer on or off. Modes with no toggle key force AutoOff option to be enabled.
+    #   Forward - switch between all valid placement sides - BACK, ABOVE, FRONT, BELOW, RIGHT, LEFT.
+    #   Backward- switch between all valid placement sides in the opposite order.
+    #   Rotate3D- rotate the placement side horizontally or vertically clockwise or anticlockwise.
+    # 
+    # Mouse Control operates by detecting movement and shifting the placement side to that side.
+    # For the back side, move the mouse diagonally to the left (either up or down), similarly
+    # for the front side, move the mouse diagonally to the right (either up or down).
+    # Sensitivity can be adjusted with MouseWobble and MouseThreshold options.
+    # 
+    # Each mode is a combination of these functions:
+    #   SINGLEKEY     - 1 key for Toggle+Forward (AutoOff)
+    #   TOGGLEFWD     - 1 key for Toggle, 1 key for Forward
+    #   FORWARDBACK   - 1 key for Toggle+Forward, 1 key for Toggle+Backward (AutoOff)
+    #   TOGGLEFWDBACK - 1 key for Toggle, 1 for Forward and 1 for Backward
+    #   ROTATE3D      - 1 key for Toggle, 4 keys for Rotate3D
+    #   MOUSE         - 1 key for Toggle, Mouse movement selects the side to place.
+    # 
+    # Values: SINGLEKEY, TOGGLEFWD, FORWARDBACK, TOGGLEFWDBACK, ROTATE3D, MOUSE
+    S:placeControlMode=TOGGLEFWDBACK
+
+    # Play a sound if forced to Reset BlockPlacer because there is no valid place location?
+    # Note: Only relevant when placeAutoOff is not enabled.
+    B:placeResetSound=true
+
+    # When BlockPlacer is activated, it automatically chooses the starting place side based on likely scenarios
+    # to give an 'intelligent' default. This based on whether you are looking up or down (or level) and which side you select.
+    B:placeSmartStart=true
+}
+
+####################
+# blockplacer user interface
+#===================
+# Defines location and colours of the BlockPlacer Icon, facing text and wireframe rendering.
+# Icon location uses a scaled % of screen size plus a pixel offset for both X (horizontal) and Y (vertical) axis
+# Facing text (if enabled) is scaled by a factor and drawn below the icon with a Gap
+# (unless there is insufficient space, when it moves above the icon). Text colour is defined by RGB+A values.
+# Wireframe render is defined by RGB+Alpha (transparency) values, line thickness and box expansion factor.
+# The box expansion factor increases the frame by a fraction of the block size to make it slightly bigger than a block.
+####################
+
+"blockplacer user interface" {
+    # Draw the placement facing and relative direction text?
+    B:drawFacingText=true
+
+    # Frame Alpha transparency value [0=Invisible, 255=Opaque] (0-255)
+    I:frameAlpha=128
+
+    # Frame Blue colour value (0-255)
+    I:frameBlue=0
+
+    # Frame expansion factor as a fraction of one block width (0.0-0.05)
+    D:frameExpand=0.0020000000949949026
+
+    # Frame Green colour value (0-255)
+    I:frameGreen=0
+
+    # Frame line width in pixels (1-10)
+    I:frameLineWidth=2
+
+    # Frame Red colour value (0-255)
+    I:frameRed=255
+
+    # Swap frame Red and Green colour values when in the Nether?
+    B:frameSwapInNether=true
+
+    # Use larger 27x27 Icon instead of smaller 18x18 icon?
+    B:largeIcon=true
+
+    # Text Alpha transparency value [0=Invisible, 255=Opaque] (0-255)
+    I:textAlpha=160
+
+    # Text Blue colour value (0-255)
+    I:textBlue=255
+
+    # Text Green colour value (0-255)
+    I:textGreen=255
+
+    # Text Red colour value (0-255)
+    I:textRed=255
+
+    # Placement text scaling percentage (1-100)
+    I:textScalingPercent=50
+
+    # Pixel gap between Icon and Placement text (0-20)
+    I:textSpacingGap=2
+
+    # Horizontal pixel offset, Left is <0, Right is >0 (-100-100)
+    I:xOffset=2
+
+    # Percentage across screen (0.0-100.0)
+    D:xScaled=0.0
+
+    # Vertical pixel offset, Up is <0, Down is >0 (-100-100)
+    I:yOffset=0
+
+    # Percentage down screen (0.0-100.0)
+    D:yScaled=7.5
+}
+
+
+####################
+# general
+####################
+
+general {
+    # Overrides the default mod logging level (OFF, ERROR, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL).
+    # The default level can be set in config/logging.properties file e.g. MudRaker.BlockPlacer.Level = INFO
+    S:logLevelOverride=
+}
+[/CODE][/spoiler]
+[color=#800080]And I hid this in the Forge config directory coz I know that's the last place you'll look![/color]
+[/spoiler]
+
+[spoiler='Modpacks: Free to a good home']Wanna put this in your mod pack?
+As long as you're not charging money - go right ahead.
+I'd appreciate a credit & please post a link below so I can have a play :)
+[/spoiler]

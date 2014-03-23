@@ -22,12 +22,10 @@ public class MyPortTransformer implements IClassTransformer {
 	 */
 	@Override
 	public byte[] transform(String className, String transformedName, byte[] bytes) {
-		Logger l = MyPortDummyContainer.logger;
-		
 		// Check if the JVM is about to process the class we want to be replace
 		if (className.equals("li") || className.equals("net.minecraft.util.HttpUtil")) {
 			//System.out.println("********* INSIDE MYPORT: " + className);
-			l.log(Level.INFO,"Found class "+className+", size "+bytes.length+", preparing to replace...");
+			System.out.println("*** Found class "+className+", size "+bytes.length+", preparing to replace...");
 			bytes = patchClassFromJar(className, bytes, MyPortPlugin.location);
 		}
 		return bytes;
@@ -60,7 +58,8 @@ public class MyPortTransformer implements IClassTransformer {
 			}
 			zip.close();
 		} catch (Exception e) {
-			throw new RuntimeException("Error overriding class " + className + " from " + location.getName(), e);
+			throw new RuntimeException("Error overriding class " + className + " from " 
+						+ (location == null ? "(null)" : location.getName()), e);
 		}
 		
 		// return the new bytes
