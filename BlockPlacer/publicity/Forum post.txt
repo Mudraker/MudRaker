@@ -4,7 +4,7 @@
 [*]Stand back from that lava!
 [*]Build down where no Steve has built before
 [/list]
-[center][img]http://static.minecraftforum.net//public/style_emoticons/default/fire.png[/img][color=#ff0000]News[img]http://static.minecraftforum.net//public/style_emoticons/default/fire.png[/img] v1.0.1 patch released[/color][/center]
+[size=6][center][img]http://static.minecraftforum.net//public/style_emoticons/default/fire.png[/img][color=#ff0000]News[img]http://static.minecraftforum.net//public/style_emoticons/default/fire.png[/img] ** 1.7.2 port released & 1.6.2 version as well ** [/color][/center][/size]
 
 [center][IMG]http://i.imgur.com/yNXouia.png[/IMG][/center]
 
@@ -43,14 +43,16 @@ Perfect for building up, down or outward ...
 
 [spoiler=Mod Videos]
 My first showcase, thanks to JANKYnik
-[media]http://www.youtube.com/watch?feature=player_embedded&v=oQEGyQgWZZM[/media]
+[media]http://www.youtube.com/watch?feature=player_embedded&v=gHAus47y4Dw[/media]
 [/spoiler]
 
 [spoiler='Downloads']V1.0.1[list]
-[*]Forge 1.7.2 is work in progress
+[*][url="http://adf.ly/h9HBq"]Forge 1.7.2[/url] (adfly)
 [*][url="http://adf.ly/gkaA5"]Forge 1.6.4[/url] (adfly)
-[*]I will package for 1.6.2 if anyone wants it.
+[*][url="http://adf.ly/hZgiM"]Forge 1.6.2 [size=2](note that /mrbp is server side only in 1.6.2)[/size][/url] (adfly)
 [/list]
+[color=#800080]If you like this mod, why not click the green arrow at the bottom to give me a vote.[/color]
+
 [spoiler='Change Log']V1.0.1
 Fix null pointer crash when open door & no block in range behind it.
 Fix handling of blocks that activate to avoid resets & beeps
@@ -205,7 +207,6 @@ Run it once and it generates a standard configuration file that tells you everyt
     # Percentage down screen (0.0-100.0)
     D:yScaled=7.5
 }
-
 
 ####################
 # general
