@@ -11,7 +11,9 @@ import static net.minecraft.util.EnumChatFormatting.RED;
 
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandException;
+import net.minecraft.command.CommandHandler;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.PlayerNotFoundException;
@@ -19,7 +21,6 @@ import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntityCommandBlock;
 import net.minecraft.util.ChatMessageComponent;
-import net.minecraftforge.client.ClientCommandHandler;
 
 /**
  * MudRaker BASE Command Handler
@@ -28,6 +29,8 @@ import net.minecraftforge.client.ClientCommandHandler;
  * &ltmodPrefix&gt.cmd.&ltcommandName&gt.usage - top level usage for the command
  * &ltmodPrefix&gt.msg.main.player - exception if sender is not a player
  * <p>Pattern: Abstract Command Handler</p>
+ * 
+ * <p>1.6.2 - Operate as a server command only</p>
  * 
  * @author MudRaker
  */
@@ -46,7 +49,8 @@ public abstract class ClientCommandBase implements ICommand {
 		this.modPrefix = modPrefix.toLowerCase();
 		this.modName = modName;
 		this.commandName = commandName;
-		ClientCommandHandler.instance.registerCommand(this);
+		//Must be registered as a server command by the caller in 1.6.2
+		//ClientCommandHandler.instance.registerCommand(this);
 	} 
 
 	// ****************************************************************
