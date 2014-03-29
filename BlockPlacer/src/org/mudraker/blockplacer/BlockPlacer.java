@@ -8,6 +8,7 @@
 package org.mudraker.blockplacer;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -210,6 +211,7 @@ public class BlockPlacer {
 			placeMop = mop;
 			placePosition.setFromMop(mop);
 			placeSide = mop.sideHit;
+			checkReplaceable();
 			if (config.placeSmartStart) {
 				setDefaultPlace (placeSide);
 			}
@@ -218,8 +220,21 @@ public class BlockPlacer {
 		// Record that relative position text should be drawn next render if enabled in config
 		drawText = config.drawFacingText;
 		
+		// Check for replaceable blocks
+        int blockId = mc.theWorld.getBlockId(placePosition.x, placePosition.y, placePosition.z);
+		Block block = Block.blocksList[blockId];
+		boolean blockIsReplaceable = (block == null) ? false : block.isBlockReplaceable(mc.theWorld, placePosition.x, placePosition.y, placePosition.z);
+        if (blockId == Block.snow.blockID || blockId == Block.vine.blockID || blockId == Block.tallGrass.blockID ||	blockId == Block.deadBush.blockID) {
+        	if (!blockIsReplaceable) Log.warn("Found special blockID but is not replaceable!!!!!!!!!!!!!!!!!!!!!!");
+        }
+		
 		// Return adjacent block from that side for drawing.
-		return drawPosition.setAdjacentOnSide(placePosition, placeSide);
+        if (blockIsReplaceable) {
+        	Log.fine("establishPlacement replaceable id("+blockId+")");
+    		return drawPosition.set(placePosition);
+        } else {
+    		return drawPosition.setAdjacentOnSide(placePosition, placeSide);
+        }
 	}
 
 	/**
@@ -448,7 +463,9 @@ public class BlockPlacer {
 				Log.fine("Place mode auto-repeat from " + placePosition + " to " + newC
 						+ " side " + placeSide);
 				placePosition = newC;
-				if (!canPlaceOnThisSide(mc.theWorld, mc.thePlayer, placeSide)) {
+				if (canPlaceOnThisSide(mc.theWorld, mc.thePlayer, placeSide)) {
+					checkReplaceable();
+				} else {
 					Log.fine("Place mode auto-repeat terminated due to obstruction");
 					placeReset(mc);
 				}
@@ -558,5 +575,13 @@ public class BlockPlacer {
 		
 		// Mark place position to be re-initialised.
 		placeReinit = true;
+	}
+	
+	/**
+	 * Check if the place position is a replaceable block if adjust accordingly
+	 * @return true if the place position was modified
+	 */
+	private static boolean checkReplaceable () {
+		return false;
 	}
 }

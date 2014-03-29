@@ -42,6 +42,8 @@ Perfect for building up, down or outward ...
 [/spoiler]
 
 [spoiler=Mod Videos]
+An in depth look at BlockPlacer and some of the things it can do for you ...
+[media]http://www.youtube.com/watch?feature=player_embedded&v=ENpRIMfBBMo[/media]
 My first showcase, thanks to JANKYnik
 [media]http://www.youtube.com/watch?feature=player_embedded&v=gHAus47y4Dw[/media]
 [/spoiler]

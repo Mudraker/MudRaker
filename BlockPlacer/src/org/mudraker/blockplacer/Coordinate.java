@@ -105,6 +105,18 @@ public class Coordinate implements Cloneable {
 	}
 
 	/**
+	 * Set the coordinate to the location provided as a {@link Coordinate}
+	 * @param coordinate to copy from
+	 * @return this coordinate
+	 */
+	public Coordinate set(Coordinate coordinate) {
+		this.x = coordinate.x;
+		this.y = coordinate.y;
+		this.z = coordinate.z;
+		return this;
+	}
+
+	/**
 	 * Compare two coordinates
 	 * @param c coordinate to compare against
 	 * @return true if same integer world location else false
