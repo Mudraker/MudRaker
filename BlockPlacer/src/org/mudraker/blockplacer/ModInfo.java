@@ -21,7 +21,7 @@ public class ModInfo {
 	public static final String PKG = "org.mudraker.blockplacer";
 	public static final String SHORT_NAME = "BlockPlacer";
 	public static final String LONG_NAME = "Block Placer by MudRaker";
-	public static final String VERSION = "1.0.1";
+	public static final String VERSION = "1.1.0";
 
 	// DO NOT PUT A LEADING SLASH ON THE PATH!!!
 	public static final String GUI_PATH = "textures/gui/";

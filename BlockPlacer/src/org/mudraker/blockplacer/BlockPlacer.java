@@ -288,56 +288,25 @@ public class BlockPlacer {
 	public static void rotatePlace(int rotateDirection) {
 		if (placeEnabled) {
 			Minecraft mc = Minecraft.getMinecraft();
-			EntityPlayer entityPlayer = mc.thePlayer;
 			World theWorld = mc.theWorld;
+			int newSide;
 			
-			int count = 0;
-			
-			int direction = getPlayerDirection(entityPlayer);
-			int pitch = playerPitch(entityPlayer);
-			int plane = Const.PLANE_TRANSLATE[pitch][rotateDirection][direction];
-			assert (plane != -1);
-			
-			// Collapse to underlying block if rotate from a replaceable block 
-			boolean collapsed = false;
-			Coordinate preCollapsePosition = null;
-			int preCollapseSide = -1;
+			// For replaceable positions, try collapsing first to see if that works
 			if (placeReplaceable) {
-				collapsed = true;
-				preCollapsePosition = placePosition;
-				preCollapseSide = placeSide;
-				collapseReplaceablePosition(theWorld);
-			}
-			
-			int newSide = Const.PLANE_ROTATE[plane][placeSide];
-			if (newSide < 0) {
-				newSide = Const.REL_DIR_TO_SIDE[direction][Const.PLANE_DEFAULT_REL_DIR[pitch]];						
-				Log.finer("Rotateplace " + placePosition + " dir=" + rotateDirection + ", from="
-						+ placeSide + " side not on rotation path, goto pitch default= " + newSide);
-			} else {
-				Log.finer("Rotateplace " + placePosition + " dir=" + rotateDirection + ", from="
-						+ placeSide + ",to=" + newSide);
-			}
-			
-			while (newSide != placeSide && !canPlaceOnThisSide(theWorld, entityPlayer, newSide) && ++count < 5) {
-				Log.finer("Rotateplace " + placePosition + " collision at side " + newSide);
-				newSide = Const.PLANE_ROTATE[plane][newSide];
-				assert (newSide >= 0);
-				Log.finer("Rotateplace " + placePosition + " retry side " + newSide);
-			}
-
-			if (collapsed && (newSide == placeSide || count >= 5)) {
-				// undo the collapse if it didn't find a better side
-				Log.fine("Rotateplace un-collapse replaceable as no better side found");
-				placePosition = preCollapsePosition;
-				placeSide = preCollapseSide;
-				placeReplaceable = true;
-			} else if (count < 5) {
-				Log.fine("Rotateplace " + placePosition + " chosen side is " + newSide);
+				Coordinate collapsedPos = new Coordinate(0, 0, 0);
+				int collapsedSide = collapseReplaceablePosition (theWorld, collapsedPos);
+				if (collapsedSide != -1) {
+					if ((newSide = doRotatePosition(mc, collapsedPos, collapsedSide, rotateDirection)) != -1) {
+						placePosition.set(collapsedPos);
+						placeSide = newSide;
+						placeReplaceable = checkIfPositionIsReplaceable(theWorld);
+						Log.fine("RotatePlace confirmed collapse to "+placePosition);
+					}
+				}
+				
+			// Otherwise we rotate around the place position
+			} else if ((newSide = doRotatePosition(mc, placePosition, placeSide, rotateDirection)) != -1) {
 				placeSide = newSide;
-			} else {
-				Log.warn("Rotateplace " + placePosition + " unable to rotate dir= " + rotateDirection 
-						+ ", from=" + placeSide + ", last attempt=" + newSide + ", attempts=" + count);
 			}
 		}
 	}
@@ -360,55 +329,29 @@ public class BlockPlacer {
 		}
 
 		Minecraft mc = Minecraft.getMinecraft();
-		EntityPlayer entityPlayer = mc.thePlayer;
 		World theWorld = mc.theWorld;
+		int newSide;
 		
-		// Collapse to underlying block if adjust from a replaceable block 
-		boolean collapsed = false;
-		Coordinate preCollapsePosition = null;
-		int preCollapseSide = -1;
+		// For replaceable positions, try collapsing first to see if that works
 		if (placeReplaceable) {
-			collapsed = true;
-			preCollapsePosition = placePosition;
-			preCollapseSide = placeSide;
-			collapseReplaceablePosition(theWorld);
-		}
+			Coordinate collapsedPos = new Coordinate(0, 0, 0);
+			int collapsedSide = collapseReplaceablePosition (theWorld, collapsedPos);
+			if (collapsedSide != -1) {
+				if ((newSide = doAdjustPosition(mc, collapsedPos, collapsedSide, forward)) != -1) {
+					placePosition.set(collapsedPos);
+					placeSide = newSide;
+					placeReplaceable = checkIfPositionIsReplaceable(theWorld);
+					Log.fine("AdjustPlace confirmed collapse to "+placePosition);
+					return true;
+				}
+			}
 		
-		int count = 0;
-		int forwardOrBack = (forward) ? 0 : 1;
-		int facing = getPlayerDirection(entityPlayer);
-		int relativeDirection = Const.SIDE_TO_REL_DIR [facing][placeSide];
-		int newRelDir = Const.REL_DIR_ROTATE[forwardOrBack][relativeDirection];
-		int newSide = Const.REL_DIR_TO_SIDE [facing][newRelDir];
-		Log.finer("Adjustplace "+placePosition+" Side("+placeSide+") Facing("+facing+") Reldir("
-				+relativeDirection+"->"+newRelDir+") NewSide("+newSide+")");
-	
-		while (!canPlaceOnThisSide(theWorld, entityPlayer, newSide) && ++count < 7) {
-			Log.finer("Adjustplace " + placePosition + " collision at side " + newSide);
-			relativeDirection = Const.SIDE_TO_REL_DIR [facing][newSide];
-			newRelDir = Const.REL_DIR_ROTATE[forwardOrBack][relativeDirection];
-			newSide = Const.REL_DIR_TO_SIDE [facing][newRelDir];
-			Log.finer("Adjustplace "+placePosition+" RETRY Facing("+facing+") Reldir("
-					+relativeDirection+"->"+newRelDir+") NewSide("+newSide+")");
-		}
-		
-		if (collapsed && (newSide == placeSide || count >= 7)) {
-			// undo the collapse if it didn't find a better side
-			Log.fine("Adjustplace Un-collapse replaceable as no better side found");
-			placePosition = preCollapsePosition;
-			placeSide = preCollapseSide;
-			placeReplaceable = true;
-			return (count < 7);
-		} else if (count < 7) {
-			Log.fine("Adjustplace " + placePosition + " chosen side is " + newSide);
+		// Otherwise we adjust from the current place position & side
+		} else if ((newSide = doAdjustPosition(mc, placePosition, placeSide, forward)) != -1) {
 			placeSide = newSide;
 			return true;
-		} else {
-			// Happens if only one side is free, or when block can only be placed on top (like snow or grass)
-			Log.fine("Adjustplace " + placePosition + " unable to adjust key= " + forwardOrBack 
-					+ ", from=" + placeSide + ", last attempt=" + newSide + ", attempts=" + count);
-			return false;
 		}
+		return false;
 	}
 
 	/**
@@ -427,50 +370,39 @@ public class BlockPlacer {
 		Config config = Config.getInstance();
 		Minecraft mc = Minecraft.getMinecraft();
 		int relDir;
-				
-		// 0,0 is bottom left corner of screen with X horizontal and Y vertical.
+		int newSide;
+
+		// Check if mouse event is enough to change sides
+		// note: 0,0 is bottom left corner of screen with X horizontal and Y vertical.
 		if (Math.abs(dx) + Math.abs(dy) >= config.mouseThreshold) {
 			int fx = (dx < - config.mouseWobble) ? 0 : (dx > config.mouseWobble) ? 2 : 1;
 			int fy = (dy < - config.mouseWobble) ? 0 : (dy > config.mouseWobble) ? 2 : 1;
 			if ((relDir = Const.MOUSE_TO_DIR [fx][fy]) >= 0) {
 				
-				// Collapse to underlying block if adjust from a replaceable block 
-				boolean collapsed = false;
-				Coordinate preCollapsePosition = null;
-				int preCollapseSide = -1;
+				Log.fine("MouseShiftPlace dxy("+dx+","+dy+") fxy("+fx+","+fy+") relDir "+
+						Const.DIRECTION_NAME[relDir]+" ("+relDir+")");
+
+				// For replaceable positions, try collapsing first to see if that works
 				if (placeReplaceable) {
-					collapsed = true;
-					preCollapsePosition = placePosition;
-					preCollapseSide = placeSide;
-					collapseReplaceablePosition(mc.theWorld);
-				}				
+					Coordinate collapsedPos = new Coordinate(0, 0, 0);
+					int collapsedSide = collapseReplaceablePosition (mc.theWorld, collapsedPos);
+					if (collapsedSide != -1) {
+						if ((newSide = doMouseShiftPosition(mc, collapsedPos, collapsedSide, relDir)) != -1) {
+							placePosition.set(collapsedPos);
+							placeSide = newSide;
+							placeReplaceable = checkIfPositionIsReplaceable(mc.theWorld);
+							Log.fine("MouseShiftPlace confirmed collapse to "+placePosition);
+						}
+					}
 				
-				int facing = getPlayerDirection(mc.thePlayer);
-				int newSide = Const.REL_DIR_TO_SIDE [facing][relDir];
-				
-				if (newSide != placeSide && canPlaceOnThisSide(mc.theWorld, mc.thePlayer, newSide)) {
-					Log.finer("MouseShiftPlace dxy("+dx+","+dy+") fxy("+fx+","+fy+") facing("
-							+facing+") relDir "+Const.DIRECTION_NAME[relDir]+" ("+relDir+") newSide ("+newSide
-							+") is valid");
+				// Otherwise we adjust from the current place position & side
+				} else if ((newSide = doMouseShiftPosition(mc, placePosition, placeSide, relDir)) != -1) {
 					placeSide = newSide;
-				} else if (collapsed) {
-					// undo the collapse if it didn't find a better side
-					Log.fine("MouseShiftPlace Un-collapse replaceable as no better side found");
-					placePosition = preCollapsePosition;
-					placeSide = preCollapseSide;
-					placeReplaceable = true;
-				} else if (newSide == placeSide) {
-					Log.finer("MouseShiftPlace dxy("+dx+","+dy+") fxy("+fx+","+fy+") facing("
-							+facing+") relDir("+relDir+") newSide ("+newSide+") is unchanged");
-				} else {
-					Log.finer("MouseShiftPlace dxy("+dx+","+dy+") fxy("+fx+","+fy+") facing("
-							+facing+") relDir "+Const.DIRECTION_NAME[relDir]+" ("+relDir+") newSide ("+newSide
-							+") is INVALID");
 				}
 			}
 		}
 	}
-		
+
 	// ********************
 	// BlockPlacer Privates
 	// ********************
@@ -484,7 +416,142 @@ public class BlockPlacer {
 		return (mop.blockX != placeMop.blockX || mop.blockY != placeMop.blockY
 				|| mop.blockZ != placeMop.blockZ || mop.sideHit != placeMop.sideHit);
 	}
+	
+	/**
+	 * 3D rotation worker that attempts to rotate from the given position and side
+	 * in the given rotation direction looking for a valid position to place.
+	 * <p>The rotate direction corresponds to the 4 rotation keys - DONT CHANGE.
+	 * Uses the main lookup tables based on relative facing to make the rotation
+	 * seem natural to the player regardless of the compass points involved.
+	 * Keeps rotating until a valid empty position is found, or fails.</p>
+	 *
+	 * @param mc is the minecraft object
+	 * @param position is the position to rotate around
+	 * @param side is the current side to rotate from
+	 * @param rotateDirection is the rotation direction
+	 * 		  0 = Rotate Vertical Clockwise
+	 * 		  1 = Rotate Vertical AntiClockwise
+	 * 		  2 = Rotate Horizontal Clockwise
+	 * 		  3 = Rotate Horizontal AntiClockwise
+	 * @returns the new side if rotation succeeded else -1
+	 */
+	private static int doRotatePosition(Minecraft mc, Coordinate position, int side, int rotateDirection) {
+		EntityPlayer entityPlayer = mc.thePlayer;
+		World theWorld = mc.theWorld;
+		int count = 0;
+		
+		// Acquire facing and plane information
+		int direction = getPlayerDirection(entityPlayer);
+		int pitch = playerPitch(entityPlayer);
+		int plane = Const.PLANE_TRANSLATE[pitch][rotateDirection][direction];
+		assert (plane != -1);
+		
+		// Attempt initial rotation
+		int newSide = Const.PLANE_ROTATE[plane][side];
+		if (newSide < 0) {
+			newSide = Const.REL_DIR_TO_SIDE[direction][Const.PLANE_DEFAULT_REL_DIR[pitch]];						
+			Log.finer("RotatePosition " + position + " dir=" + rotateDirection + ", from="
+					+ side + " side not on rotation path, goto pitch default= " + newSide);
+		} else {
+			Log.finer("RotatePosition " + position + " dir=" + rotateDirection + ", from="
+					+ side + ",to=" + newSide);
+		}
+		
+		// Check rotation is valid & repeat rotation until it is
+		while (newSide != side && !canPlaceOnThisSide(theWorld, entityPlayer, position, newSide) && ++count < 5) {
+			Log.finer("RotatePosition " + position + " collision at side " + newSide);
+			newSide = Const.PLANE_ROTATE[plane][newSide];
+			assert (newSide >= 0);
+			Log.finer("RotatePosition " + position + " retry side " + newSide);
+		}
 
+		// Log results and return chosen side or failure.
+		if (newSide != side && count < 5) {
+			Log.fine("RotatePosition " + position + " chosen side is " + newSide);
+			return newSide;
+		} else {
+			Log.fine("RotatePosition " + position + " failed to rotate dir= " + rotateDirection 
+					+ ", from=" + side + ", last attempt=" + newSide + ", attempts=" + count);
+			return -1;
+		}
+	}
+	
+	/**
+	 * Forward/backward adjust worker that attempts to adjust from the given position and side
+	 * in the given direction looking for a valid side to place on.
+	 * <p>Uses the relative direction of the player to rotate through a standard
+	 * list of relative sides so it makes sense to the player no matter what
+	 * compass points are involved.</p>
+	 *
+	 * @param mc is the minecraft object
+	 * @param position is the position to rotate around
+	 * @param side is the current side to rotate from
+	 * @param forward is set true for forward or false for backward
+	 * @returns the new side if adjust side succeeded else -1
+	 */
+	private static int doAdjustPosition (Minecraft mc, Coordinate position, int side, boolean forward) {
+		EntityPlayer entityPlayer = mc.thePlayer;
+		World theWorld = mc.theWorld;
+		
+		// Setup and acquire facings
+		int count = 0;
+		int forwardOrBack = (forward) ? 0 : 1;
+		int facing = getPlayerDirection(entityPlayer);
+		
+		// Adjust position to find new side
+		int relativeDirection = Const.SIDE_TO_REL_DIR [facing][side];
+		int newRelDir = Const.REL_DIR_ROTATE[forwardOrBack][relativeDirection];
+		int newSide = Const.REL_DIR_TO_SIDE [facing][newRelDir];
+		Log.finer("AdjustPosition "+position+" Side("+side+") Facing("+facing+") Reldir("
+				+relativeDirection+"->"+newRelDir+") NewSide("+newSide+")");
+	
+		// Check if side is valid & repeat adjust until it is (or fail)
+		while (!canPlaceOnThisSide(theWorld, entityPlayer, position, newSide) && ++count < 7) {
+			Log.finer("AdjustPosition " + position + " collision at side " + newSide);
+			relativeDirection = Const.SIDE_TO_REL_DIR [facing][newSide];
+			newRelDir = Const.REL_DIR_ROTATE[forwardOrBack][relativeDirection];
+			newSide = Const.REL_DIR_TO_SIDE [facing][newRelDir];
+			Log.finer("AdjustPosition "+position+" RETRY Facing("+facing+") Reldir("
+					+relativeDirection+"->"+newRelDir+") NewSide("+newSide+")");
+		}
+		
+		// Log results and return chosen side or failure.		
+		if (newSide != side && count < 7) {
+			Log.fine("AdjustPosition " + position + " chosen side is " + newSide);
+			return newSide;
+		} else {
+			// Happens if only one side is free, or when block can only be placed on top (like snow or grass)
+			Log.fine("AdjustPosition " + position + " unable to adjust key= " + forwardOrBack 
+					+ ", from=" + placeSide + ", last attempt=" + newSide + ", attempts=" + count);
+			return -1;
+		}
+	}
+
+	/**
+	 * Mouse shift worker that attempts to change side based on mouse movements.
+	 * @param mc is the minecraft object
+	 * @param position is the position to rotate around
+	 * @param side is the current side to rotate from
+	 * @param relDir is the relative direction corresponding to the mouse movement
+	 * @returns the new side if side shift succeeded else -1
+	 */	
+	private static int doMouseShiftPosition(Minecraft mc, Coordinate position, int side, int relDir) {
+		int facing = getPlayerDirection(mc.thePlayer);
+		int newSide = Const.REL_DIR_TO_SIDE [facing][relDir];
+		
+		if (newSide == side) {
+			Log.finer("MouseShiftPosition facing("+facing+") relDir("+relDir+") newSide ("+newSide+") is unchanged");
+		} else if (canPlaceOnThisSide(mc.theWorld, mc.thePlayer, position, newSide)) {
+			Log.finer("MouseShiftPosition facing("+facing+") relDir "+Const.DIRECTION_NAME[relDir]+" ("+relDir+
+					") newSide ("+newSide+") is valid");
+			return newSide;
+		} else {
+			Log.finer("MouseShiftPosition facing("+facing+") relDir "+Const.DIRECTION_NAME[relDir]+" ("+relDir+
+					") newSide ("+newSide+") is INVALID");
+		}
+		return -1;	
+	}
+	
 	/**
 	 * Worker function that handles successful placement of a block.
 	 * <p>Implements the core auto-off and auto-repeat functions.</p>
@@ -522,7 +589,7 @@ public class BlockPlacer {
 			placeReplaceable = checkIfPositionIsReplaceable(mc.theWorld);
 			placeSide = effectiveSide;
 			Log.fine("Replaced block, so auto-repeat at same block on side "+Facing.facings[placeSide]+" ("+placeSide+")");
-			if (!canPlaceOnThisSide(mc.theWorld, mc.thePlayer, placeSide)) {
+			if (!canPlaceOnThisSide(mc.theWorld, mc.thePlayer, placePosition, placeSide)) {
 				Log.fine("Place mode auto-repeat terminated due to obstruction");
 				placeReset(mc);
 			}
@@ -532,8 +599,8 @@ public class BlockPlacer {
 			Coordinate newC = placePosition.adjacentOnSide(placeSide);
 			Log.fine("Place mode auto-repeat from " + placePosition + " to " + newC
 					+ " side " + placeSide);
-			placePosition = newC;
-			if (canPlaceOnThisSide(mc.theWorld, mc.thePlayer, placeSide)) {
+			if (canPlaceOnThisSide(mc.theWorld, mc.thePlayer, newC, placeSide)) {
+				placePosition = newC;
 				placeReplaceable = checkIfPositionIsReplaceable(mc.theWorld);
 			} else {
 				Log.fine("Place mode auto-repeat terminated due to obstruction");
@@ -570,20 +637,21 @@ public class BlockPlacer {
 	private static final ItemBlock DIRT = (ItemBlock) Item.itemsList[Block.dirt.blockID]; // local constant
 			
 	/**
-	 * Worker to check if it is legal to place a block on the given side of the current place
+	 * Worker to check if it is legal to place a block on the given side of the given position
 	 * location. Used for testing alternate placement sides to see if they are valid.
 	 * @param theWorld is the current world
 	 * @param entityPlayer is the entity player that would do the placement
+	 * @param pos is the block coordinate to place against
 	 * @param side is the block side we want to place on.
 	 * @return true if the current player item could be placed here else false
 	 */
-	private static boolean canPlaceOnThisSide(World theWorld, EntityPlayer entityPlayer, int side) {
+	private static boolean canPlaceOnThisSide(World theWorld, EntityPlayer entityPlayer, Coordinate pos, int side) {
 		ItemStack itemStack = entityPlayer.getHeldItem();
 		ItemBlock itemBlock = ((itemStack != null && itemStack.getItem() instanceof ItemBlock) 
 				? (ItemBlock) itemStack.getItem() : DIRT);
-		boolean valid = itemBlock.canPlaceItemBlockOnSide(theWorld, placePosition.x,
-				placePosition.y, placePosition.z, side, entityPlayer, itemStack);
-		//Log.finer("canPlaceOnThisSide " + placePosition + " @ side " + side + " --> " + valid);
+		boolean valid = itemBlock.canPlaceItemBlockOnSide(theWorld, pos.x,
+				pos.y, pos.z, side, entityPlayer, itemStack);
+		//Log.finer("canPlaceOnThisSide " + pos + " @ side " + side + " --> " + valid);
 		return valid;
 	}
 
@@ -632,7 +700,7 @@ public class BlockPlacer {
 			if ((defaultDir = Const.DEFAULT_PLACE [attempt][pitch][relativeDirection]) < 0)
 				break;
 			placeSide = Const.REL_DIR_TO_SIDE [facing][defaultDir];
-			isValid = (canPlaceOnThisSide(theWorld, entityPlayer, placeSide));
+			isValid = (canPlaceOnThisSide(theWorld, entityPlayer, placePosition, placeSide));
 			Log.finer("DefaultPlace ("+attempt+"/"+Const.DEFAULT_PLACE.length+") "
 					+placePosition+" Side("+sideHit+") Facing("+facing+") Pitch("
 					+pitch+") Reldir("+relativeDirection+"->"+defaultDir+") NewSide("+placeSide+") VALID="+isValid);
@@ -686,9 +754,10 @@ public class BlockPlacer {
 	}
 	
 	/**
-	 * Check if the place position is a replaceable block if adjust accordingly
+	 * Find the effective side that we are placing on if we ignored the replaceable block
+	 * Result also implies the opposite direction to find the expected adjacent block location
 	 * @param theWorld is the world
-	 * @return true if the place position was modified
+	 * @return the effective side of the underlying block or -1 if not replaceable
 	 */
 	private static int findEffectiveReplaceableSide (World theWorld) {
         int blockId = theWorld.getBlockId(placePosition.x, placePosition.y, placePosition.z);
@@ -712,25 +781,24 @@ public class BlockPlacer {
 	}
 	
 	/**
-	 * If the current position is replaceable, collapse the position back to being the
-	 * underlying adjacent block on the side that the replaceable block is.
-	 * This enables placement to be adjusted around the underlying block as there is
-	 * no value in adjusting around the replaceable block. 
+	 * Attempts to collapse a currently replaceable position to the underlying block
+	 * that the replaceable block is against. If possible, sets the collapsed position
+	 * parameter and returns the effective placement side.
 	 * @param theWorld is the world
-	 * @returns true if an underlying block is found else false
+	 * @param collapsedPos (OUT) is the returned collapsed position
+	 * @returns collapsed place side if can collapse else -1
 	 */
-	private static boolean collapseReplaceablePosition (World theWorld) {
+	private static int collapseReplaceablePosition (World theWorld, Coordinate collapsedPos) {
 		int side = findEffectiveReplaceableSide(theWorld);
 		if (placeReplaceable && side != -1) {
-			Coordinate newC = placePosition.adjacentOnSide(Facing.oppositeSide[side]);
-	        if (theWorld.getBlockId(newC.x, newC.y, newC.z) != 0) {
-	        	Log.fine("Collapse replaceable at "+placePosition+" eff-Side "+Facing.facings[side]+"("+side+") to "+newC);
-	        	placePosition = newC;
-	        	placeSide = side;
-	        	placeReplaceable = checkIfPositionIsReplaceable(theWorld);
-	        	return true;
+			collapsedPos.set(placePosition);
+			collapsedPos.setAdjacentOnSide(Facing.oppositeSide[side]);
+	        if (theWorld.getBlockId(collapsedPos.x, collapsedPos.y, collapsedPos.z) != 0) {
+	        	Log.fine("Collapse replaceable at "+placePosition+" eff-Side "+Facing.facings[side]+"("+side+") to "+collapsedPos);
+	        	return side;
 	        }
+	    	Log.fine("Unable to collapse replaceable at "+placePosition);
 		}
-		return false;
+		return -1;
 	}
 }
