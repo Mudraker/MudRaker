@@ -1,5 +1,6 @@
 # BlockPlacer general strings
 mudraker.blockplacer.phrase.values=Values
+mudraker.blockplacer.phrase.replace=Replace!
 
 # BlockPlacer command usage
 mudraker.blockplacer.cmd.mrbp.usage=mrbp [log <level> | console [off] | reload | set <field> <value> | [get | ?] <field>]

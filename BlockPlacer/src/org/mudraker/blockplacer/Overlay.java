@@ -113,7 +113,7 @@ public class Overlay extends Gui {
 			// Draw relative direction
 			if (BlockPlacer.shouldDrawText()) {
 				// Get the string to draw
-				String relativeDirection = BlockPlacer.getPlaceRelativeDirection(mc.thePlayer);
+				String relativeDirection = BlockPlacer.getPlacementText(mc.thePlayer);
 				
 				// Figure out where to draw it
 				int stringWidth = MathHelper.ceiling_float_int(mc.fontRenderer.getStringWidth(relativeDirection) * config.textScaling);

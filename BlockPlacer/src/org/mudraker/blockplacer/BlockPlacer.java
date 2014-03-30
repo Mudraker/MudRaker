@@ -8,7 +8,7 @@
 package org.mudraker.blockplacer;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
+import net.minecraft.block.BlockVine;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -20,6 +20,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
+import org.mudraker.Lang;
 import org.mudraker.Log;
 
 import cpw.mods.fml.relauncher.Side;
@@ -67,6 +68,9 @@ public class BlockPlacer {
 	
 	/** Which side of the placePosition should we place on? */
 	private static int placeSide = 0;
+	
+	/** Is the placePosition replaceable? */
+	private static boolean placeReplaceable;
 
 	// **************************************
 	// Getters and Setters
@@ -163,19 +167,21 @@ public class BlockPlacer {
 	// ********************************
 
 	/**
-	 * Return the place position as a relative direction to the player facing.
-	 * <p>Returns Above, Below, Front, Back, Left, Right and adds the compass point
-	 * in parenthesis after it</p>
-	 * @param entityPlayer is the player to find relative to
-	 * @return the relative direction string
+	 * Return the placement text.
+	 * <p>Normally the position as a relative direction to the player facing. 
+	 * Above, Below, Front, Back, Left, Right and adds the compass point in parenthesis after it</p>
+	 * <p>Returns "Replace" if the position is a replaceable block</p>
+	 * @param entityPlayer is the player to find the placement text for
+	 * @return the placement text string
 	 */
-	public static String getPlaceRelativeDirection(EntityPlayer entityPlayer) {
-		int facing = getPlayerDirection(entityPlayer);
-		int relativeDirection = Const.SIDE_TO_REL_DIR[facing][placeSide];
-		//Log.finer(entityPlayer, "Rel=" + Const.DIRECTION_NAME[relativeDirection] + " (" + relativeDirection + "), Player facing="
-		//		+ Facing.facings[facing] + " (" + facing + "), Block Side=" + Facing.facings[placeSide] 
-		//		+ " (" + placeSide + ")");
-		return Const.DIRECTION_NAME[relativeDirection] + " (" + Facing.facings[placeSide] + ")";
+	public static String getPlacementText(EntityPlayer entityPlayer) {
+		if (placeReplaceable) {
+			return Lang.getPhrase(ModInfo.ID, "replace");
+		} else {
+			int facing = getPlayerDirection(entityPlayer);
+			int relativeDirection = Const.SIDE_TO_REL_DIR[facing][placeSide];
+			return Const.DIRECTION_NAME[relativeDirection] + " (" + Facing.facings[placeSide] + ")";
+		}
 	}
 	
 	/**
@@ -204,15 +210,15 @@ public class BlockPlacer {
 				placeReset(mc);
 			} else {
 				Log.fine("Reset placing - Mouse shift " + placeMop.blockX + ","
-						+ placeMop.blockY + "," + placeMop.blockZ + "/" + placeSide + " to "
+						+ placeMop.blockY + "," + placeMop.blockZ + "/" + placeMop.sideHit + " to "
 						+ mop.blockX + "," + mop.blockY + "," + mop.blockZ + "/" + mop.sideHit);
 			}
 			placeReinit = false;
 			placeMop = mop;
 			placePosition.setFromMop(mop);
 			placeSide = mop.sideHit;
-			checkReplaceable();
-			if (config.placeSmartStart) {
+			placeReplaceable = checkIfPositionIsReplaceable(mc.theWorld);
+			if (!placeReplaceable && config.placeSmartStart) {
 				setDefaultPlace (placeSide);
 			}
 		}
@@ -220,21 +226,11 @@ public class BlockPlacer {
 		// Record that relative position text should be drawn next render if enabled in config
 		drawText = config.drawFacingText;
 		
-		// Check for replaceable blocks
-        int blockId = mc.theWorld.getBlockId(placePosition.x, placePosition.y, placePosition.z);
-		Block block = Block.blocksList[blockId];
-		boolean blockIsReplaceable = (block == null) ? false : block.isBlockReplaceable(mc.theWorld, placePosition.x, placePosition.y, placePosition.z);
-        if (blockId == Block.snow.blockID || blockId == Block.vine.blockID || blockId == Block.tallGrass.blockID ||	blockId == Block.deadBush.blockID) {
-        	if (!blockIsReplaceable) Log.warn("Found special blockID but is not replaceable!!!!!!!!!!!!!!!!!!!!!!");
-        }
-		
-		// Return adjacent block from that side for drawing.
-        if (blockIsReplaceable) {
-        	Log.fine("establishPlacement replaceable id("+blockId+")");
-    		return drawPosition.set(placePosition);
-        } else {
-    		return drawPosition.setAdjacentOnSide(placePosition, placeSide);
-        }
+		// Set draw position
+		if (placeReplaceable)
+			return drawPosition.set(placePosition);
+		else
+			return drawPosition.setAdjacentOnSide(placePosition, placeSide);
 	}
 
 	/**
@@ -245,6 +241,7 @@ public class BlockPlacer {
 	 */
 	public static boolean doRightClick(EntityPlayer entityPlayer) {
 		Minecraft mc = Minecraft.getMinecraft();
+		int effectiveSide = findEffectiveReplaceableSide(entityPlayer.worldObj);
 
 		Log.fine("Simulating rightclick at " + placePosition + " on side " + placeSide);
 		if (mc.playerController.onPlayerRightClick(entityPlayer, entityPlayer.worldObj,
@@ -262,8 +259,8 @@ public class BlockPlacer {
 				return false;
 			} else {
 				if (didItPlaceABlock(mc.theWorld)) {
-					Log.fine("Block actually placed, so determine the next step");
-					placeComplete();
+					Log.fine((placeReplaceable ? "Replaceable " : "") + "Block actually placed!");
+					placeComplete(effectiveSide);
 				}
 				entityPlayer.swingItem();
 				return true;
@@ -280,6 +277,7 @@ public class BlockPlacer {
 	 * seem natural to the player regardless of the compass points involved.
 	 * Keeps rotating until a valid empty position is found, or Resets if none
 	 * are possible.</p>
+	 * <p>Supports collapsing replaceable positions.</p>
 	 * 
 	 * @param rotateDirection is the rotation direction
 	 * 		  0 = Rotate Vertical Clockwise
@@ -300,6 +298,17 @@ public class BlockPlacer {
 			int plane = Const.PLANE_TRANSLATE[pitch][rotateDirection][direction];
 			assert (plane != -1);
 			
+			// Collapse to underlying block if rotate from a replaceable block 
+			boolean collapsed = false;
+			Coordinate preCollapsePosition = null;
+			int preCollapseSide = -1;
+			if (placeReplaceable) {
+				collapsed = true;
+				preCollapsePosition = placePosition;
+				preCollapseSide = placeSide;
+				collapseReplaceablePosition(theWorld);
+			}
+			
 			int newSide = Const.PLANE_ROTATE[plane][placeSide];
 			if (newSide < 0) {
 				newSide = Const.REL_DIR_TO_SIDE[direction][Const.PLANE_DEFAULT_REL_DIR[pitch]];						
@@ -316,7 +325,14 @@ public class BlockPlacer {
 				assert (newSide >= 0);
 				Log.finer("Rotateplace " + placePosition + " retry side " + newSide);
 			}
-			if (count < 5) {
+
+			if (collapsed && (newSide == placeSide || count >= 5)) {
+				// undo the collapse if it didn't find a better side
+				Log.fine("Rotateplace un-collapse replaceable as no better side found");
+				placePosition = preCollapsePosition;
+				placeSide = preCollapseSide;
+				placeReplaceable = true;
+			} else if (count < 5) {
 				Log.fine("Rotateplace " + placePosition + " chosen side is " + newSide);
 				placeSide = newSide;
 			} else {
@@ -331,6 +347,7 @@ public class BlockPlacer {
 	 * <p>Uses the relative direction of the player to rotate through a standard
 	 * list of relative sides so it makes sense to the player no matter what
 	 * compass points are involved.</p>
+	 * <p>Supports collapsing replaceable positions.</p>
 	 * 
 	 * @param autoOn indicates if block placer should auto turn on if currently off
 	 * @param forward is set true for forward or false for backward
@@ -345,6 +362,17 @@ public class BlockPlacer {
 		Minecraft mc = Minecraft.getMinecraft();
 		EntityPlayer entityPlayer = mc.thePlayer;
 		World theWorld = mc.theWorld;
+		
+		// Collapse to underlying block if adjust from a replaceable block 
+		boolean collapsed = false;
+		Coordinate preCollapsePosition = null;
+		int preCollapseSide = -1;
+		if (placeReplaceable) {
+			collapsed = true;
+			preCollapsePosition = placePosition;
+			preCollapseSide = placeSide;
+			collapseReplaceablePosition(theWorld);
+		}
 		
 		int count = 0;
 		int forwardOrBack = (forward) ? 0 : 1;
@@ -363,12 +391,21 @@ public class BlockPlacer {
 			Log.finer("Adjustplace "+placePosition+" RETRY Facing("+facing+") Reldir("
 					+relativeDirection+"->"+newRelDir+") NewSide("+newSide+")");
 		}
-		if (count < 7) {
+		
+		if (collapsed && (newSide == placeSide || count >= 7)) {
+			// undo the collapse if it didn't find a better side
+			Log.fine("Adjustplace Un-collapse replaceable as no better side found");
+			placePosition = preCollapsePosition;
+			placeSide = preCollapseSide;
+			placeReplaceable = true;
+			return (count < 7);
+		} else if (count < 7) {
 			Log.fine("Adjustplace " + placePosition + " chosen side is " + newSide);
 			placeSide = newSide;
 			return true;
 		} else {
-			Log.warn("Adjustplace " + placePosition + " unable to adjust key= " + forwardOrBack 
+			// Happens if only one side is free, or when block can only be placed on top (like snow or grass)
+			Log.fine("Adjustplace " + placePosition + " unable to adjust key= " + forwardOrBack 
 					+ ", from=" + placeSide + ", last attempt=" + newSide + ", attempts=" + count);
 			return false;
 		}
@@ -396,16 +433,35 @@ public class BlockPlacer {
 			int fx = (dx < - config.mouseWobble) ? 0 : (dx > config.mouseWobble) ? 2 : 1;
 			int fy = (dy < - config.mouseWobble) ? 0 : (dy > config.mouseWobble) ? 2 : 1;
 			if ((relDir = Const.MOUSE_TO_DIR [fx][fy]) >= 0) {
+				
+				// Collapse to underlying block if adjust from a replaceable block 
+				boolean collapsed = false;
+				Coordinate preCollapsePosition = null;
+				int preCollapseSide = -1;
+				if (placeReplaceable) {
+					collapsed = true;
+					preCollapsePosition = placePosition;
+					preCollapseSide = placeSide;
+					collapseReplaceablePosition(mc.theWorld);
+				}				
+				
 				int facing = getPlayerDirection(mc.thePlayer);
 				int newSide = Const.REL_DIR_TO_SIDE [facing][relDir];
-				if (newSide == placeSide) {
-					Log.finer("MouseShiftPlace dxy("+dx+","+dy+") fxy("+fx+","+fy+") facing("
-							+facing+") relDir("+relDir+") newSide ("+newSide+") is unchanged");
-				} else if (canPlaceOnThisSide(mc.theWorld, mc.thePlayer, newSide)) {
+				
+				if (newSide != placeSide && canPlaceOnThisSide(mc.theWorld, mc.thePlayer, newSide)) {
 					Log.finer("MouseShiftPlace dxy("+dx+","+dy+") fxy("+fx+","+fy+") facing("
 							+facing+") relDir "+Const.DIRECTION_NAME[relDir]+" ("+relDir+") newSide ("+newSide
 							+") is valid");
 					placeSide = newSide;
+				} else if (collapsed) {
+					// undo the collapse if it didn't find a better side
+					Log.fine("MouseShiftPlace Un-collapse replaceable as no better side found");
+					placePosition = preCollapsePosition;
+					placeSide = preCollapseSide;
+					placeReplaceable = true;
+				} else if (newSide == placeSide) {
+					Log.finer("MouseShiftPlace dxy("+dx+","+dy+") fxy("+fx+","+fy+") facing("
+							+facing+") relDir("+relDir+") newSide ("+newSide+") is unchanged");
 				} else {
 					Log.finer("MouseShiftPlace dxy("+dx+","+dy+") fxy("+fx+","+fy+") facing("
 							+facing+") relDir "+Const.DIRECTION_NAME[relDir]+" ("+relDir+") newSide ("+newSide
@@ -432,49 +488,82 @@ public class BlockPlacer {
 	/**
 	 * Worker function that handles successful placement of a block.
 	 * <p>Implements the core auto-off and auto-repeat functions.</p>
+	 * <p>Handles setting position after replacing a replaceable block.</p>
 	 * <p>Also checks to see if the newly placed block is obscuring the existing ray 
 	 * trace and if so, shifts the current recorded ray trace accordingly - this
 	 * stops block placer from thinking that the mouse has moved and reinitialising.</p>
 	 * <p>If not repeating, a new valid side is selected as the current position if
 	 * possible, otherwise it does a Reset - allowing for AutoEnd and sounds.</p>
+	 * @param effectiveSide is the effective side of a replaceable block placement (for autoRpt)
 	 */
-	private static void placeComplete() {
+	private static void placeComplete (int effectiveSide) {
+		Minecraft mc = Minecraft.getMinecraft();
 		Config config = Config.getInstance();
+		
 		// AutoOff if required & not repeating
 		if (config.placeAutoOff && !config.placeAutoRpt) {
 			placeEnabled = false;
 			placeReinit = true;
 			Log.info("place mode auto-disabled");
-		} else {
-			Minecraft mc = Minecraft.getMinecraft();
-	        double reach = (double)mc.playerController.getBlockReachDistance();
-	        MovingObjectPosition mop = mc.renderViewEntity.rayTrace(reach, 1.0F);
-	        
-	        if (mop != null && mouseShifted(mop)) {
-				Log.fine("Placed block is in the mouse line, mark as standard");
-	        	placeMop = mop;
-	        }
-	
-			if (mop == null) {
-				Log.fine("Nothing in reach now - was it a door??");
-				placeReinit = true;
-			} else if (config.placeAutoRpt) {
-				Coordinate newC = placePosition.adjacentOnSide(placeSide);
-				Log.fine("Place mode auto-repeat from " + placePosition + " to " + newC
-						+ " side " + placeSide);
-				placePosition = newC;
-				if (canPlaceOnThisSide(mc.theWorld, mc.thePlayer, placeSide)) {
-					checkReplaceable();
-				} else {
-					Log.fine("Place mode auto-repeat terminated due to obstruction");
-					placeReset(mc);
-				}
-			} else if (setDefaultPlace (placeSide) < 0) {
-				// this happens with no auto repeat if place on all sides of a block!!
-				Log.warn("Place mode force-disabled - no valid place sides");
+			
+		// Replaceable blocks when not repeating
+		} else if (placeReplaceable && !config.placeAutoRpt) {
+			placeReinit = true;
+			placeReplaceable = false;
+			Log.fine("Replaced block but no autoRpt so re-initialise");
+
+		// Reset ray trace and reinitialise if nothing in reach now
+		} else if (!resetRayTrace(mc)) {
+			Log.fine("Nothing in reach now - was it a door??");
+			placeReinit = true;
+		
+		// Handle auto-repeat after a replaceable block
+		} else if (placeReplaceable && config.placeAutoRpt) {
+			placeReplaceable = checkIfPositionIsReplaceable(mc.theWorld);
+			placeSide = effectiveSide;
+			Log.fine("Replaced block, so auto-repeat at same block on side "+Facing.facings[placeSide]+" ("+placeSide+")");
+			if (!canPlaceOnThisSide(mc.theWorld, mc.thePlayer, placeSide)) {
+				Log.fine("Place mode auto-repeat terminated due to obstruction");
 				placeReset(mc);
 			}
+			
+		// Handle normal auto-repeat
+		} else if (config.placeAutoRpt) {
+			Coordinate newC = placePosition.adjacentOnSide(placeSide);
+			Log.fine("Place mode auto-repeat from " + placePosition + " to " + newC
+					+ " side " + placeSide);
+			placePosition = newC;
+			if (canPlaceOnThisSide(mc.theWorld, mc.thePlayer, placeSide)) {
+				placeReplaceable = checkIfPositionIsReplaceable(mc.theWorld);
+			} else {
+				Log.fine("Place mode auto-repeat terminated due to obstruction");
+				placeReset(mc);
+			}
+			
+		// Find next place position around the same block if not repeating	
+		} else if (setDefaultPlace (placeSide) < 0) {
+			// this happens with no auto repeat if place on all sides of a block!!
+			Log.fine("Place mode force-reset - no valid place sides");
+			placeReset(mc);
 		}
+	}
+	
+	/**
+	 * Reset the placement {@link MovingObjectPosition} ray trace to reflect the 
+	 * placed block IF it alters the ray trace. Only valid during the right-click 
+	 * place action when the mouse is not moving. Also detects if the no blocks are
+	 * in reach after the right click (e.g. if a door is opened).
+	 * @param mc is minecraft
+	 * @return true if a valid ray trace exists or false if nothing within reach anymore.
+	 */
+	private static boolean resetRayTrace (Minecraft mc) { 
+	    double reach = (double)mc.playerController.getBlockReachDistance();
+	    MovingObjectPosition mop = mc.renderViewEntity.rayTrace(reach, 1.0F);
+	    if (mop != null && mouseShifted(mop)) {
+			Log.fine("Placed block is in ray trace, refocus at "+ mop.blockX + "," + mop.blockY + "," + mop.blockZ + "/" + mop.sideHit);
+			placeMop = mop;
+	    }
+		return (mop != null);
 	}
 	
 	/** A constant dirt itemstack for use as a default if needed when checking if can place. */  
@@ -510,11 +599,15 @@ public class BlockPlacer {
 	/**
 	 * Check if a block actually placed when the player right clicked or did the block just activate?
 	 * @param theWorld is the current world
-	 * @return true if there is a block on the place side of the place position
+	 * @return true if a replaceable block was replaced or there is a block on the place side of the place position
 	 */
 	private static boolean didItPlaceABlock (World theWorld) {
-		Coordinate newC = placePosition.adjacentOnSide(placeSide);
-		return (theWorld.getBlockId (newC.x, newC.y, newC.z) != 0);
+		if (placeReplaceable) {
+			return (!checkIfPositionIsReplaceable(theWorld));
+		} else {
+			Coordinate newC = placePosition.adjacentOnSide(placeSide);
+			return (theWorld.getBlockId (newC.x, newC.y, newC.z) != 0);
+		}
 	}
 	
 	/**
@@ -578,10 +671,66 @@ public class BlockPlacer {
 	}
 	
 	/**
+	 * Check if the place position is a replaceable block
+	 * @param theWorld is the world
+	 * @return true if the place position is a replaceable block
+	 */
+	private static boolean checkIfPositionIsReplaceable (World theWorld) {
+        int blockId = theWorld.getBlockId(placePosition.x, placePosition.y, placePosition.z);
+		Block block = Block.blocksList[blockId];
+		if (block != null && block.isBlockReplaceable(theWorld, placePosition.x, placePosition.y, placePosition.z)) {
+        	Log.fine("Block is replaceable at "+placePosition+", id("+blockId+")");
+			return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Check if the place position is a replaceable block if adjust accordingly
+	 * @param theWorld is the world
 	 * @return true if the place position was modified
 	 */
-	private static boolean checkReplaceable () {
+	private static int findEffectiveReplaceableSide (World theWorld) {
+        int blockId = theWorld.getBlockId(placePosition.x, placePosition.y, placePosition.z);
+		int blockMeta = theWorld.getBlockMetadata(placePosition.x, placePosition.y, placePosition.z);
+		Block block = Block.blocksList[blockId];
+		
+		if (block != null && block.isBlockReplaceable(theWorld, placePosition.x, placePosition.y, placePosition.z)) {
+    		int side;
+        	if (!(block instanceof BlockVine)) side = Const.SIDE_TOP;
+    		//see BlockVine.java canVineStay() and setBlockBoundsBasedOnState() for why this order
+        	else if ((blockMeta & 2) != 0) 	side = Const.SIDE_EAST;
+            else if ((blockMeta & 8) != 0) 	side = Const.SIDE_WEST;
+            else if ((blockMeta & 4) != 0) 	side = Const.SIDE_SOUTH;
+            else if ((blockMeta & 1) != 0) 	side = Const.SIDE_NORTH;
+            else 							side = Const.SIDE_BOTTOM;
+        	Log.fine("Replaceable block at "+placePosition+", id("+blockId+") Meta("+blockMeta+") eff-Side "+Facing.facings[side]+"("+side+")");
+        	return side;
+        } else {
+    		return -1;
+        }		
+	}
+	
+	/**
+	 * If the current position is replaceable, collapse the position back to being the
+	 * underlying adjacent block on the side that the replaceable block is.
+	 * This enables placement to be adjusted around the underlying block as there is
+	 * no value in adjusting around the replaceable block. 
+	 * @param theWorld is the world
+	 * @returns true if an underlying block is found else false
+	 */
+	private static boolean collapseReplaceablePosition (World theWorld) {
+		int side = findEffectiveReplaceableSide(theWorld);
+		if (placeReplaceable && side != -1) {
+			Coordinate newC = placePosition.adjacentOnSide(Facing.oppositeSide[side]);
+	        if (theWorld.getBlockId(newC.x, newC.y, newC.z) != 0) {
+	        	Log.fine("Collapse replaceable at "+placePosition+" eff-Side "+Facing.facings[side]+"("+side+") to "+newC);
+	        	placePosition = newC;
+	        	placeSide = side;
+	        	placeReplaceable = checkIfPositionIsReplaceable(theWorld);
+	        	return true;
+	        }
+		}
 		return false;
 	}
 }
