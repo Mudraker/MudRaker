@@ -699,15 +699,15 @@ public abstract class ConfigBase {
 	}
 
 	/**
-	 * Generous boolean parser support 0/1, true/false, yes/no allowing any case and substrings of these as well.
+	 * Generous boolean parser support 0/1, true/false, yes/no, on/off allowing any case and substrings of these as well.
 	 * @param value is the string to be parsed
 	 * @return the boolean value
 	 * @throws IllegalArguementException if value does not match criteria.
 	 */
 	public boolean parseBoolean (String value) {
-		if (value.equals("1") || Util.stringHasPrefix("true", value) || Util.stringHasPrefix("yes", value))
+		if (value.equals("1") || Util.stringHasPrefix("true", value) || Util.stringHasPrefix("yes", value) || value.equalsIgnoreCase("on"))
 			return true;
-		else if (value.equals("0") || Util.stringHasPrefix("false", value) || Util.stringHasPrefix("no", value))
+		else if (value.equals("0") || Util.stringHasPrefix("false", value) || Util.stringHasPrefix("no", value) || value.equalsIgnoreCase("off"))
 			return false;
 		else
 			throw new IllegalArgumentException ("Invalid boolean value ("+value+")");
