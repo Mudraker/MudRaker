@@ -64,4 +64,5 @@ mudraker.blockplacer.field.placeSmartStart.comment=When BlockPlacer is activated
 mudraker.blockplacer.field.mouseWobble.comment=Defines the size of small 'wobble' mouse movements that are ignored when the control mode is MOUSE.\nIf the shift on a mouse axis is this or less, it is treated as not moving on that axis.
 mudraker.blockplacer.field.mouseThreshold.comment=Minimum movement threshold for the mouse to trigger a change in the placement location when the control\nmode is MOUSE. If the sum of movement on both axes within 1 tick is less than this, it is ignored.
 mudraker.blockplacer.field.logLevelOverride.comment=Overrides the default mod logging level (OFF, ERROR, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL).\nThe default level can be set in config/logging.properties file e.g. MudRaker.BlockPlacer.Level = INFO
+mudraker.blockplacer.field.placeDetectDevices.comment=Should BlockPlacer try to detect devices that activate and suppress the wireframe unless player is sneaking?\nWorks by checking if the block overrides the base onBlockActivate method so may not always be accurate.
 #end

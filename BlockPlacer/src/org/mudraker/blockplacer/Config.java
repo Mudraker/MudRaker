@@ -220,7 +220,11 @@ public class Config extends ConfigBase {
 	 */
 	@Cfg(cat = CTL, value = boolean.class)
 	public boolean placeSmartStart = true;
-
+	
+	/** Should BlockPlacer try to detect devices that activate and suppress the wireframe unless shift is down? */
+	@Cfg(cat = CTL, value = boolean.class)
+	public boolean placeDetectDevices = true;
+	
 	/**
 	 * Defines the size of small 'wobble' mouse movements that are ignored when
 	 * the {@link placeControlMode} is MOUSE. If the shift on a mouse axis is this or less,

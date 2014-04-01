@@ -7,6 +7,9 @@
  */
 package org.mudraker.blockplacer;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockVine;
 import net.minecraft.client.Minecraft;
@@ -189,8 +192,8 @@ public class BlockPlacer {
 	 * or disables BlockPlacer mode if it should no longer be drawn.
 	 * @param entityPlayer is the {@link EntityPlayer} the selection wire frame is being drawn for.
 	 * @param mop is the {@link MovingObjectPosition} of the selection event ray trace.
-	 * @param drawPosition (OUT) updated with wire frame draw coordinate (if valid). 
-	 * @return the wire frame draw coordinate if it should be drawn, or null if BlockPlacer has been auto disabled.
+	 * @param drawPosition (OUT) updated with wire frame draw coordinate (if valid).
+	 * @return the wire frame draw coordinate if it should be drawn, or null if no wireframe should be drawn
 	 */
 	public static Coordinate establishPlacement(Minecraft mc, EntityPlayer entityPlayer, MovingObjectPosition mop, Coordinate drawPosition) {
 		Config config = Config.getInstance();
@@ -219,10 +222,25 @@ public class BlockPlacer {
 			placeSide = mop.sideHit;
 			placeReplaceable = checkIfPositionIsReplaceable(mc.theWorld);
 			if (!placeReplaceable && config.placeSmartStart) {
-				setDefaultPlace (placeSide);
+				setDefaultPlace (placeSide); // ignore failure, just leave on sideHit if can't find anything better
+			}
+		}
+
+		// Check placement location and fix if not valid - exit if no valid position
+		if (!canPlaceOnThisSide(mc.theWorld, entityPlayer, placePosition, placeSide)) {
+			Log.fine("Initial start location is illegal");
+			if (!adjustPlace(false, true)) {
+				Log.fine("Can't find ANY location & can't place what we are holding here");
+				if (!entityPlayer.isSneaking()) return null; // FORCED EXIT
 			}
 		}
 		
+		// If detect devices is enabled, check if block can exit if it does/might.
+		if (!entityPlayer.isSneaking() && config.placeDetectDevices && canBlockActivate(mc, placePosition)) {
+			Log.fine("Can't find ANY location & can't place what we are holding here");
+			return null; // FORCED EXIT
+		}
+			
 		// Record that relative position text should be drawn next render if enabled in config
 		drawText = config.drawFacingText;
 		
@@ -236,7 +254,7 @@ public class BlockPlacer {
 	/**
 	 * Call the standard player right click handler, but adjusting the side clicked.
 	 * Caller is expected to check block placer is enabled before calling. 
-	 * Function to duplicate minecraft.src.net.Minecraft.java/clickMouse()
+	 * Function to duplicate net.minecraft.client.Minecraft.java/clickMouse()
 	 * @@MCVERSION164
 	 */
 	public static boolean doRightClick(EntityPlayer entityPlayer) {
@@ -800,5 +818,46 @@ public class BlockPlacer {
 	    	Log.fine("Unable to collapse replaceable at "+placePosition);
 		}
 		return -1;
+	}
+	
+	/**
+	 * Attempts to detect if a world block can activate or not.
+	 * <p>Uses reflection to detect if the block is inheriting the base {@link block.java} class method for
+	 * {@link onBlockActivate}. If it is the block cannot activate. Reflected results are cached to avoid
+	 * the repeated reflection overheads.</p>
+	 * @param mc is the minecraft instance
+	 * @param position is the world position coordinate
+	 * @return true if the block could activate, or false if it definitely can't OR an error occurs
+	 * @@MCVERSION 164
+	 */
+	private static boolean canBlockActivate (Minecraft mc, Coordinate position) {
+        int blockId = mc.theWorld.getBlockId(position.x, position.y, position.z);
+        HashMap<Integer,Boolean> cache = new HashMap(128);
+
+        if (!cache.containsKey(blockId)) {
+            Block block = Block.blocksList[blockId];
+            Method method = null;
+            final Class [] parms = new Class[] {World.class, int.class, int.class, int.class, EntityPlayer.class, int.class, float.class, float.class, float.class};
+	        try {
+	        	method = block.getClass().getMethod("func_71903_a", parms);
+	        } catch (NoSuchMethodException e) {
+	            try {
+	            	method = block.getClass().getMethod("onBlockActivated", parms);
+	            } catch (NoSuchMethodException e2) {
+	            	Log.info("No such method exception - twice");
+	            	cache.put(blockId, false);
+	            	return false;
+	            }
+	        } catch (SecurityException e) {
+	        	Log.info("Security exception");
+            	cache.put(blockId, false);
+	        	return false;
+        	}
+            boolean result = !(method.getDeclaringClass().equals(Block.class));
+        	cache.put(blockId, result);
+        	return result;
+        } else {
+        	return (cache.get(blockId));
+        }
 	}
 }

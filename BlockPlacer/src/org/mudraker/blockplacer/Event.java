@@ -98,7 +98,7 @@ public class Event {
 					&& !GameSettings.isKeyDown(mc.gameSettings.keyBindPickBlock)
 					&& BlockPlacer.isHoldingItemBlock(event.player)) {
 				
-				// establish draw position & only proceed if BlockPlacer has not auto-turned-off 
+				// establish draw position & only proceed if a good placement is found 
 				if (BlockPlacer.establishPlacement (mc, event.player, event.target, drawPosition) != null) {
 					drawSelectionBox(event.player, event.target, 0, event.partialTicks);
 					event.setCanceled(true); // cancel the standard draw

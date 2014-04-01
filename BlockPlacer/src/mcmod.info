@@ -3,7 +3,7 @@
   "modid": "MudRaker.BlockPlacer",
   "name": "Block Placer by MudRaker",
   "description": "A utility mod allowing blocks to placed be on ANY side of an existing block. Just activate BlockPlacer to get a wireframe showing the destination and move it to your desired location.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "mcversion": "1.6.4",
   "logoFile": "",
   "url": "",
