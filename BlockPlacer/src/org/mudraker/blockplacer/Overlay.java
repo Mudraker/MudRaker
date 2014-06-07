@@ -55,6 +55,10 @@ public class Overlay extends Gui {
 	public static final int MOUSE_MIDDLE = 2;
 	public static final String[] MOUSE_BUTTON_NAMES_PLUS1={"None","Left","Right","Middle"};
 	
+	/* Tick time last drawn */
+	private float lastDrawTick = 1.0F; 
+	private int blinkCounter = 1;
+	
 	/**
 	 * Handle mouse events to detect movement for MOUSE Control mode
 	 * @param event is the details of the mouse event
@@ -110,28 +114,56 @@ public class Overlay extends Gui {
 			mc.renderEngine.bindTexture(ICON);
 			this.drawTexturedModalRect(xPos, yPos, 0, iconOffset, iconSize, iconSize);
 
-			// Draw relative direction
+			// Should we be drawing text or is there no valid position to show
 			if (BlockPlacer.shouldDrawText()) {
-				// Get the string to draw
-				String relativeDirection = BlockPlacer.getPlacementText(mc.thePlayer);
-				
-				// Figure out where to draw it
-				int stringWidth = MathHelper.ceiling_float_int(mc.fontRenderer.getStringWidth(relativeDirection) * config.textScaling);
-				int stringHeight = MathHelper.ceiling_float_int(mc.fontRenderer.FONT_HEIGHT * config.textScaling);
-				xPos = Util.bound((int) (config.xScaled
-						* (double) (screenWidth - stringWidth) / 100.0)
-						+ config.xOffset, 0, screenWidth - stringWidth);
-				int yPosText = yPos + iconSize + config.textSpacingGap;
-				if (yPosText + stringHeight >= screenHeight) {
-					yPosText = yPos - stringHeight - config.textSpacingGap;
+
+				// Draw relative direction
+				if  (config.drawFacingText) {
+					String relativeDirection = BlockPlacer.getPlacementText(mc.thePlayer);
+					int stringHeight = MathHelper.ceiling_float_int(mc.fontRenderer.FONT_HEIGHT * config.textScaling);
+					int stringWidth = MathHelper.ceiling_float_int(mc.fontRenderer.getStringWidth(relativeDirection) * config.textScaling);
+
+					// Figure out where to draw it
+					xPos = Util.bound((int) (config.xScaled
+							* (double) (screenWidth - stringWidth) / 100.0)
+							+ config.xOffset, 0, screenWidth - stringWidth);
+					int yPosText = yPos + iconSize + config.textSpacingGap;
+					if (yPosText + stringHeight >= screenHeight) {
+						yPosText = yPos - stringHeight - config.textSpacingGap;
+					}
+					
+					// Draw the text, saving current state before changing translation & scaling matrices 
+					GL11.glPushMatrix();
+		            GL11.glTranslatef((float)(xPos), (float)(yPosText), 0.0F);	// sets new origin		
+					GL11.glScalef(config.textScaling, config.textScaling, 1);	// scales everything drawn
+					this.drawString (mc.fontRenderer, relativeDirection, 0, 0, config.textColour);
+					GL11.glPopMatrix();
 				}
-				
-				// Draw the text, saving current state before changing translation & scaling matrices 
-				GL11.glPushMatrix();
-	            GL11.glTranslatef((float)(xPos), (float)(yPosText), 0.0F);	// sets new origin		
-				GL11.glScalef(config.textScaling, config.textScaling, 1);	// scales everything drawn
-				this.drawString (mc.fontRenderer, relativeDirection, 0, 0, config.textColour);
-				GL11.glPopMatrix();
+
+				// Count ticks for blinking text - draw when negative, no draw when positive.
+				if (config.drawReminderText) {
+					if (event.partialTicks <= lastDrawTick) {
+						if (--blinkCounter <= -10) blinkCounter = 10;
+					}
+					lastDrawTick = event.partialTicks;
+				}
+
+				// Draw reminder text in the middle of the screen if placing opposite
+				String reminder;
+				if (config.drawReminderText &&  blinkCounter <= 0 && (reminder = BlockPlacer.getReminderText(mc.thePlayer)) != null) {
+					// Figure out where to draw it
+					int stringWidth = MathHelper.ceiling_float_int(mc.fontRenderer.getStringWidth(reminder) * config.reminderScaling);
+					int stringHeight = MathHelper.ceiling_float_int(mc.fontRenderer.FONT_HEIGHT * config.reminderScaling);
+					xPos = (screenWidth - stringWidth) / 2;
+					yPos = (screenHeight - mc.fontRenderer.FONT_HEIGHT) / 2 - stringHeight;
+					
+					// Draw the text, saving current state before changing translation & scaling matrices 
+					GL11.glPushMatrix();
+		            GL11.glTranslatef((float)(xPos), (float)(yPos), 0.0F);	// sets new origin		
+					GL11.glScalef(config.reminderScaling, config.reminderScaling, 1);	// scales everything drawn
+					this.drawString (mc.fontRenderer, reminder, 0, 0, config.textColour);
+					GL11.glPopMatrix();
+				}
 			}
 		}
 	}

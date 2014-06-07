@@ -119,7 +119,7 @@ public class BlockPlacer {
 		return placeEnabled;
 	}
 	
-	/** @returns true if need to draw relative position text. Auto resets flag to false.  */
+	/** @returns true if need to draw relative position or reminder text. Auto resets flag to false.  */
 	public static boolean shouldDrawText() {
 		boolean b = drawText;
 		drawText = false;
@@ -186,6 +186,23 @@ public class BlockPlacer {
 			return Const.DIRECTION_NAME[relativeDirection] + " (" + Facing.facings[placeSide] + ")";
 		}
 	}
+
+	/**
+	 * Return the reminder text.
+	 * <p>Normally the position as a relative direction to the player facing. 
+	 * Above, Below, Front, Back, Left, Right and adds the compass point in parenthesis after it</p>
+	 * <p>Returns null if the block is replaceable or the side is the same as the hit side
+	 * @param entityPlayer is the player to find the placement text for
+	 * @return the placement text string
+	 */
+	public static String getReminderText(EntityPlayer entityPlayer) {
+		if (!placeReplaceable && placeSide != placeMop.sideHit) {
+			int facing = getPlayerDirection(entityPlayer);
+			int relativeDirection = Const.SIDE_TO_REL_DIR[facing][placeSide];
+			return Const.DIRECTION_NAME[relativeDirection] + " (" + Facing.facings[placeSide] + ")";
+		}
+		return null;
+	}
 	
 	/**
 	 * Establishes the correct position to draw the selection wire frame, 
@@ -235,14 +252,14 @@ public class BlockPlacer {
 			}
 		}
 		
-		// If detect devices is enabled, check if block can exit if it does/might.
+		// If detect devices is enabled, check if block can activate and exit if it does/might.
 		if (!entityPlayer.isSneaking() && config.placeDetectDevices && canBlockActivate(mc, placePosition)) {
 			Log.fine("Can't find ANY location & can't place what we are holding here");
 			return null; // FORCED EXIT
 		}
 			
-		// Record that relative position text should be drawn next render if enabled in config
-		drawText = config.drawFacingText;
+		// Record that relative position and/or reminder text should be drawn next render if enabled in config
+		drawText = (config.drawFacingText || config.drawReminderText);
 		
 		// Set draw position
 		if (placeReplaceable)
@@ -603,7 +620,8 @@ public class BlockPlacer {
 			placeReinit = true;
 		
 		// Handle auto-repeat after a replaceable block
-		} else if (placeReplaceable && config.placeAutoRpt) {
+		// Only 
+		} else if (placeReplaceable && config.placeAutoRpt && effectiveSide > -1) { 
 			placeReplaceable = checkIfPositionIsReplaceable(mc.theWorld);
 			placeSide = effectiveSide;
 			Log.fine("Replaced block, so auto-repeat at same block on side "+Facing.facings[placeSide]+" ("+placeSide+")");
@@ -684,6 +702,7 @@ public class BlockPlacer {
 	
 	/**
 	 * Check if a block actually placed when the player right clicked or did the block just activate?
+	 * Make sure the block found is not liquid as this indicates it didn't place properly. 
 	 * @param theWorld is the current world
 	 * @return true if a replaceable block was replaced or there is a block on the place side of the place position
 	 */
@@ -692,7 +711,13 @@ public class BlockPlacer {
 			return (!checkIfPositionIsReplaceable(theWorld));
 		} else {
 			Coordinate newC = placePosition.adjacentOnSide(placeSide);
-			return (theWorld.getBlockId (newC.x, newC.y, newC.z) != 0);
+	        int blockId = theWorld.getBlockId (newC.x, newC.y, newC.z);
+	        if (blockId != 0) {
+	        	Block block = Block.blocksList[blockId];
+	        	return (block != null && !block.blockMaterial.isLiquid());
+	        } else {
+	        	return false;
+	        }
 		}
 	}
 	
@@ -757,14 +782,14 @@ public class BlockPlacer {
 	}
 	
 	/**
-	 * Check if the place position is a replaceable block
+	 * Check if the place position is a (non-liquid) replaceable block
 	 * @param theWorld is the world
 	 * @return true if the place position is a replaceable block
 	 */
 	private static boolean checkIfPositionIsReplaceable (World theWorld) {
         int blockId = theWorld.getBlockId(placePosition.x, placePosition.y, placePosition.z);
 		Block block = Block.blocksList[blockId];
-		if (block != null && block.isBlockReplaceable(theWorld, placePosition.x, placePosition.y, placePosition.z)) {
+		if (block != null && !block.blockMaterial.isLiquid() && block.isBlockReplaceable(theWorld, placePosition.x, placePosition.y, placePosition.z)) {
         	Log.fine("Block is replaceable at "+placePosition+", id("+blockId+")");
 			return true;
 		}
@@ -782,7 +807,7 @@ public class BlockPlacer {
 		int blockMeta = theWorld.getBlockMetadata(placePosition.x, placePosition.y, placePosition.z);
 		Block block = Block.blocksList[blockId];
 		
-		if (block != null && block.isBlockReplaceable(theWorld, placePosition.x, placePosition.y, placePosition.z)) {
+		if (block != null && !block.blockMaterial.isLiquid() && block.isBlockReplaceable(theWorld, placePosition.x, placePosition.y, placePosition.z)) {
     		int side;
         	if (!(block instanceof BlockVine)) side = Const.SIDE_TOP;
     		//see BlockVine.java canVineStay() and setBlockBoundsBasedOnState() for why this order

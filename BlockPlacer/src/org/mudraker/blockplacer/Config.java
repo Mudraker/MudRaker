@@ -110,6 +110,10 @@ public class Config extends ConfigBase {
 	@Cfg(cat = UI, value = boolean.class)
 	public boolean drawFacingText = true;
 
+	/** Draw reminder text and selected side is opposite? */
+	@Cfg(cat = UI, value = boolean.class)
+	public boolean drawReminderText = true;
+
 	/** Scaling factor for placement text (0-1) */
 	public float textScaling;
 	/** Internal Scaling percentage for placement text */
@@ -170,6 +174,16 @@ public class Config extends ConfigBase {
 	/** Swap Red and Green colour values when in the Nether? */
 	@Cfg(cat = UI, value = boolean.class)
 	public boolean frameSwapInNether = true;
+	
+	/** Scaling factor for reminder text (0-1) */
+	public float reminderScaling;
+	/** Internal Scaling percentage for reminder text */
+	@Cfg(cat = UI, value = int.class, min = 1, max = 100)
+	private int reminderScalingPercent = 75;
+	
+	/** Blink rate for reminder text (1-40) */
+	@Cfg(cat = UI, value = int.class, min = 1, max = 40)
+	public int reminderBlinkRate = 10;
 
 	// ****************************************************************
 	// CONTROL configuration
@@ -369,5 +383,6 @@ public class Config extends ConfigBase {
 		frameGreenF = frameGreen / 255.0F;
 		frameBlueF = frameBlue / 255.0F;
 		frameAlphaF = frameAlpha / 255.0F;
+		reminderScaling = reminderScalingPercent / 100F;
 	}
 }
