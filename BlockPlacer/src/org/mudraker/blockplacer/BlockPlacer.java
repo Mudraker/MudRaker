@@ -132,10 +132,12 @@ public class BlockPlacer {
 
 	/**
 	 * @param entityPlayer the player to be checked
-	 * @return true if this player is holding a valid {@link ItemBlock} else false
+	 * @return true if this player is holding a valid {@link ItemBlock} OR multipart item else false
 	 */
 	public static boolean isHoldingItemBlock(EntityPlayer entityPlayer) {
-		return (entityPlayer.getHeldItem() != null && (entityPlayer.getHeldItem().getItem() instanceof ItemBlock));
+		ItemStack itemStack = entityPlayer.getHeldItem();
+		Item item = (itemStack == null) ? null : itemStack.getItem();
+		return (item != null && (item instanceof ItemBlock || isItemMultipart(item)));
 	}
 
 	/**
@@ -855,11 +857,11 @@ public class BlockPlacer {
 	 * @return true if the block could activate, or false if it definitely can't OR an error occurs
 	 * @@MCVERSION 164
 	 */
+    private static HashMap<Integer,Boolean> activateCache = new HashMap(128);
 	private static boolean canBlockActivate (Minecraft mc, Coordinate position) {
         int blockId = mc.theWorld.getBlockId(position.x, position.y, position.z);
-        HashMap<Integer,Boolean> cache = new HashMap(128);
 
-        if (!cache.containsKey(blockId)) {
+        if (!activateCache.containsKey(blockId)) {
             Block block = Block.blocksList[blockId];
             Method method = null;
             final Class [] parms = new Class[] {World.class, int.class, int.class, int.class, EntityPlayer.class, int.class, float.class, float.class, float.class};
@@ -869,20 +871,49 @@ public class BlockPlacer {
 	            try {
 	            	method = block.getClass().getMethod("onBlockActivated", parms);
 	            } catch (NoSuchMethodException e2) {
-	            	Log.info("No such method exception - twice");
-	            	cache.put(blockId, false);
+	            	Log.warn("CanBlockActivate: No such method exception - twice");
+	            	activateCache.put(blockId, false);
 	            	return false;
 	            }
 	        } catch (SecurityException e) {
-	        	Log.info("Security exception");
-            	cache.put(blockId, false);
+	        	Log.warn("CanBlockActivate: Security exception");
+            	activateCache.put(blockId, false);
 	        	return false;
         	}
             boolean result = !(method.getDeclaringClass().equals(Block.class));
-        	cache.put(blockId, result);
+            Log.finer("CanBlockActivate: Add result to cache ("+blockId+","+result+")");
+        	activateCache.put(blockId, result);
         	return result;
         } else {
-        	return (cache.get(blockId));
+            Log.finest("CanBlockActivate: Cache FOUND ("+blockId+","+activateCache.get(blockId)+")");
+        	return (activateCache.get(blockId));
         }
 	}
+	
+	/**
+	 * Attempts to detect if an item is a forge multipart item.
+	 * <p>Uses reflection to detect if the block is inheriting a class containing ".multipart.".
+	 * Reflected results are cached to avoid the repeated reflection overheads.</p>
+	 * @return true if the item is a multipart, or false if it definitely isn't
+	 * @@MCVERSION 164
+	 */
+    private static HashMap<Integer,Boolean> multipartCache = new HashMap(128);
+	private static boolean isItemMultipart (Item item) {
+		boolean result = false;
+        if (!multipartCache.containsKey(item.itemID)) {
+			Class cls = item.getClass();
+			String name = (cls == null) ? null : cls.getName().toLowerCase();
+			while (name != null && !(result = name.contains(".multipart."))) {
+				Log.info("isItemMultipart: Item("+item.itemID+") Search class name<"+name+">, simple<"+cls.getSimpleName()+">");
+				cls = cls.getSuperclass();
+				name = (cls == null) ? null : cls.getName().toLowerCase();
+			}
+			Log.info("isItemMultipart: Item("+item.itemID+") Class search stopped at name<"+name+">");
+        	multipartCache.put(item.itemID, result);
+        	return result;
+        } else {
+            Log.info("isItemMultipart: Cache FOUND ("+item.itemID+","+multipartCache.get(item.itemID)+")");
+        	return (multipartCache.get(item.itemID));
+        }
+	}	
 }
